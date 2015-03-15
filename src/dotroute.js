@@ -12,26 +12,14 @@ DoTRoute.Exception = function(message) {
 DoTRoute.Exception.prototype = Object.create(Error.prototype);
 DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
-// Application
+// Route
 
-DoTRoute.Application = function() {
+DoTRoute.Route = function(name,path,callable) {
 
-    this.routes = {};
+    this.name = name;
+    this.patterns = [];
+    this.callable = callable;
 
-    $(window).on('hashchange',$.proxy(this.router,this));  
-    $(window).on('load',$.proxy(this.router,this));  
-
-}
-
-// Use as constructor
-
-DoTRoute.Application.prototype.constructor = DoTRoute.Application;
-
-// Route - Map a pattern to a callable entity
-
-DoTRoute.Application.prototype.route = function(name,path,callable) {
-
-    var patterns = [];
     var paths = path.split('/').slice(1);
 
     for (var index = 0; index < paths.length; index++) {
@@ -52,63 +40,98 @@ DoTRoute.Application.prototype.route = function(name,path,callable) {
                 pattern.regex = new RegExp(parameter_regex[0]);
             } else if (parameter_regex.length == 2) {
                 pattern.regex = new RegExp(parameter_regex[0],parameter_regex[1]);
-            } else {
-                throw new DoTRoute.Exception("Bad Regex: " + parameter_regex.join(':'));
             }
 
         } else {
-            patterns.push(exact: paths[index]});
+            pattern.exact = paths[index];
         }
 
-        patterns.push(pattern);
+        this.patterns.push(pattern);
 
     }
 
-    this.routes[name] = {patterns: patterns, callable: callable};
+}
+
+// Use as constructor
+
+DoTRoute.Route.prototype.constructor = DoTRoute.Route;
+
+// Application
+
+DoTRoute.Application = function(target,pane) {
+
+    this.target = target ? target : "body";
+    this.window = pane ? pane : window;
+
+    this.routes = [];
+
+    $(this.window).on('hashchange',$.proxy(this.router,this));  
+    $(this.window).on('load',$.proxy(this.router,this));  
 
 }
 
-// Match - find a route
+// Use as constructor
+
+DoTRoute.Application.prototype.constructor = DoTRoute.Application;
+
+// Start - Start listening for events
+
+DoTRoute.Application.prototype.route = function(name,path,callable) {
+
+    this.routes.push(new DoTRoute.Route(name,path,callable));
+
+}
+
+// Route - Map a pattern to a callable entity
+
+DoTRoute.Application.prototype.route = function(name,path,callable) {
+
+    this.routes.push(new DoTRoute.Route(name,path,callable));
+
+}
+
+// Route - match 
 
 DoTRoute.Application.prototype.match = function(path) {
 
     var path_query = path.split('?');
-    var paths = path_query.shift().split('/');
-    var match = {route: null, query: {}};
+    var paths = path_query.shift().split('/').slice(1);
+    var query = {};
     
     if (path_query.length) {
-        $.each(path_query.split('&'),function(index,parameter) {
+        $.each(path_query[0].split('&'),function(index,parameter) {
             var name_value = parameter.split('=');
-            match.query[name_value[0]] = name_value.length > 1 ? decodeURIComponent(name_value[1]) : null;
+            query[name_value[0]] = name_value.length > 1 ? decodeURIComponent(name_value[1]) : null;
         });
     }
 
-    $.each(this.routes,function (name,route) {
+    route_loop: for (var route_index = 0; route_index < this.routes.length; route_index++) {
 
-        match.name = name;
-        match.route = route;
-        match.path = {};
+        var route = this.routes[route_index];
+        var path = {};
 
         if (paths.length != route.patterns.length) {
-            continue;
+            continue route_loop;
         }
 
-        for (var index = 0; index < route.patterns.length; index++) {
+        for (var pattern_index = 0; pattern_index < route.patterns.length; pattern_index++) {
 
-            if (("exact" in route.patterns[index] && route.patterns[index].exact != paths[index]) ||
-                ("regex" in route.patterns[index] && !route.patterns[index].regex.test(paths[index])) {
-                continue;
+            var pattern = route.patterns[pattern_index];
+
+            if (("exact" in pattern && pattern.exact != paths[pattern_index]) ||
+                ("regex" in pattern && !pattern.regex.test(paths[pattern_index]))) {
+                continue route_loop;
             }
 
-            if ("parameter" in route.patterns[index]) {
-                match.path[route.patterns[index].parameter] = = paths[index];
+            if ("parameter" in pattern) {
+                path[pattern.parameter] = paths[pattern_index];
             }
 
         }
 
-        return match;
+        return {route: route,path: path,query: query};
 
-    });
+    }
 
     return null;
 
@@ -118,12 +141,14 @@ DoTRoute.Application.prototype.match = function(path) {
 
 DoTRoute.Application.prototype.router = function() {
 
+    alert("Some bullshit");
+
     var path = (location.hash.slice(1) || "/");
 
     var match = this.match(path);
 
     if (match) {
-        match.route.callable(match.path,match.query);
+        match.route.callable(match);
     } else {
         throw new DoTRoute.Exception("Unable to route: " + location.hash);
     }
