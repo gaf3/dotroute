@@ -48,23 +48,41 @@ QUnit.module("DoTRoute.Application", {
 
 QUnit.test("constructor", function(assert) {
 
+    var application = new DoTRoute.Application();
+
+    assert.deepEqual(application.routes,[]);
+
+});
+
+QUnit.test("start", function(assert) {
+
     this.applicationWindow = window.open("", "_blank", "width=200, height=100");
     this.applicationWindow.document.write("<span></span>");
 
-    var application = new DoTRoute.Application("span",this.applicationWindow);
+    var application = new DoTRoute.Application();
+        
+    application.start("span",this.applicationWindow);
 
     assert.equal(application.target,"span");
     assert.equal(application.window,this.applicationWindow);
-    assert.deepEqual(application.routes,[]);
+
+});
+
+QUnit.test("template", function(assert) {
+
+    var application = new DoTRoute.Application();
+
+    application.template("simple","<p>{{=it.stuff}}</p>");
+    assert.equal(application.templates.simple({stuff: 'things'}),"<p>things</p>");
+
+    application.template("complex","<p>{{#def.more}} {{=it.stuff}}</p>",null,{more: "people stuff"});
+    assert.equal(application.templates.complex({stuff: 'things'}),"<p>people stuff things</p>");
 
 });
 
 QUnit.test("route", function(assert) {
 
-    this.applicationWindow = window.open("", "_blank", "width=200, height=100");
-    this.applicationWindow.document.write("<span></span>");
-
-    var application = new DoTRoute.Application("span",this.applicationWindow);
+    var application = new DoTRoute.Application();
 
     application.route("simple","/this/that/","simple()");
     application.route("named","/this/{that}/","named()");
@@ -81,10 +99,7 @@ QUnit.test("route", function(assert) {
 
 QUnit.test("match", function(assert) {
 
-    this.applicationWindow = window.open("", "_blank", "width=200, height=100");
-    this.applicationWindow.document.write("<span></span>");
-
-    var application = new DoTRoute.Application("span",this.applicationWindow);
+    var application = new DoTRoute.Application();
 
     application.route("wrong","/way/charlie/","wrong()");
     assert.equal(application.match("/this/that/?a=1&b=2"),null);

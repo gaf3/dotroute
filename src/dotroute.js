@@ -58,15 +58,10 @@ DoTRoute.Route.prototype.constructor = DoTRoute.Route;
 
 // Application
 
-DoTRoute.Application = function(target,pane) {
-
-    this.target = target ? target : "body";
-    this.window = pane ? pane : window;
+DoTRoute.Application = function() {
 
     this.routes = [];
-
-    $(this.window).on('hashchange',$.proxy(this.router,this));  
-    $(this.window).on('load',$.proxy(this.router,this));  
+    this.templates = {};
 
 }
 
@@ -76,9 +71,21 @@ DoTRoute.Application.prototype.constructor = DoTRoute.Application;
 
 // Start - Start listening for events
 
-DoTRoute.Application.prototype.route = function(name,path,callable) {
+DoTRoute.Application.prototype.start = function(target,pane) {
 
-    this.routes.push(new DoTRoute.Route(name,path,callable));
+    this.target = target ? target : "body";
+    this.window = pane ? pane : window;
+
+    $(this.window).on('hashchange',$.proxy(this.router,this));  
+    $(this.window).on('load',$.proxy(this.router,this));  
+
+}
+
+// Template - Map a compiled template to a name
+
+DoTRoute.Application.prototype.template = function(name,text,custom,data) {
+
+    this.templates[name] = doT.template(text,custom,data);
 
 }
 
@@ -140,8 +147,6 @@ DoTRoute.Application.prototype.match = function(path) {
 // Router - match route and call
 
 DoTRoute.Application.prototype.router = function() {
-
-    alert("Some bullshit");
 
     var path = (location.hash.slice(1) || "/");
 
