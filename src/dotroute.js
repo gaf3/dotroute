@@ -36,14 +36,15 @@ DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
 
 // Route
 
-DoTRoute.Route = function(application,name,path,template,enter,exit) {
+DoTRoute.Route = function(application,name,path,template,controller,enter,exit) {
 
     this.application = application;
     this.name = name;
     this.path = path;
-    this.template = template ? template : this.name;
-    this.enter = enter ? enter : function () {};
-    this.exit = exit ? exit : function () {};
+    this.template = template;
+    this.controller = controller;
+    this.enter = enter;
+    this.exit = exit;
 
     this.patterns = [];
     var paths = path.split('/').slice(1);
@@ -91,6 +92,7 @@ DoTRoute.Application = function(target,pane) {
     this.controllers = {};
 
     this.current = {
+        controller: null,
         route: null,
         path: null,
         query: null
@@ -140,9 +142,26 @@ DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
 // route - Map a pattern to a callable entity
 
-DoTRoute.Application.prototype.route = function(name,path,template,enter,exit) {
+DoTRoute.Application.prototype.route = function(name,path,template,controller,enter,exit) {
 
-    this.routes.push(new DoTRoute.Route(this,name,path,template,enter,exit));
+    template = template && typeof(template) == "string" ? this.templates[template] : template;
+    controller = controller && typeof(controller) == "string" ? this.controllers[controller] : controller;
+
+    if (controller && typeof(enter) == "string") {
+        enter = $.proxy(controller[enter],controller);
+    } else {
+        enter = enter ? enter : function () {};
+    }
+
+    if (controller && typeof(exit) == "string") {
+        exit = $.proxy(controller[exit],controller);
+    } else {
+        exit = exit ? exit : function () {};
+    }
+
+    this.routes.push(new DoTRoute.Route(this,name,path,template,controller,enter,exit));
+
+    return this.routes.slice(-1)[0];
 
 }
 
@@ -185,6 +204,7 @@ DoTRoute.Application.prototype.match = function(path) {
 
         }
 
+        this.current.controller = route.controller;
         this.current.route = route;
         this.current.path = path;
         this.current.query = query;
@@ -209,6 +229,7 @@ DoTRoute.Application.prototype.router = function() {
     }
 
     this.current = {
+        controller: null,
         route: null,
         path: null,
         query: null
