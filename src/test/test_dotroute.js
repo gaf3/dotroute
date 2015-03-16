@@ -27,7 +27,6 @@ QUnit.test("constructor", function(assert) {
     assert.deepEqual(controller.it,{});
     assert.equal(controller.application,"appy");
     assert.equal(controller.name,"controlly");
-    assert.equal(controller.template,"controlly");
 
 });
 
@@ -48,7 +47,7 @@ QUnit.test("render", function(assert) {
 
     controller.it = {stuff: "things"};
 
-    controller.render();
+    controller.render("ren");
 
     assert.equal($("span",this.controllerWindow.document).text(),"things");
 
@@ -58,25 +57,29 @@ QUnit.module("DoTRoute.Route");
 
 QUnit.test("constructor", function(assert) {
 
-    var simple = new DoTRoute.Route("simple","/this/that/","simple()");
+    var simple = new DoTRoute.Route("simple","/this/that/","simple()","simply");
     assert.equal(simple.name,"simple");
     assert.deepEqual(simple.patterns,[{exact: "this"},{exact: "that"},{exact: ""}]);
     assert.equal(simple.callable,"simple()");
+    assert.equal(simple.template,"simply");
 
     var named = new DoTRoute.Route("named","/this/{that}/","named()");
     assert.equal(named.name,"named");
     assert.deepEqual(named.patterns,[{exact: "this"},{parameter: "that"},{exact: ""}]);
     assert.equal(named.callable,"named()");
+    assert.equal(named.template,"named");
 
     var words = new DoTRoute.Route("words","/this/{:\\w+:i}/","words()");
     assert.equal(words.name,"words");
     assert.deepEqual(words.patterns,[{exact: "this"},{regex: /\w+/i},{exact: ""}]);
     assert.equal(words.callable,"words()");
+    assert.equal(words.template,"words");
 
     var complex = new DoTRoute.Route("complex","/this/{that:\\w+:i}/","complex()");
     assert.equal(complex.name,"complex");
     assert.deepEqual(complex.patterns,[{exact: "this"},{parameter: "that",regex: /\w+/i},{exact: ""}]);
     assert.equal(complex.callable,"complex()");
+    assert.equal(complex.template,"complex");
 
 });
 
@@ -137,20 +140,18 @@ QUnit.test("controller", function(assert) {
     assert.deepEqual(controller.it,{});
     assert.equal(controller.application,application);
     assert.equal(controller.name,"controlly");
-    assert.equal(controller.template,"controlly");
 
     var controller = application.controller("controlly",{
         start: function (value) {
             this.it.finish = value;
         }
-    },"tempy");
+    });
 
     controller.start("up");    
 
     assert.deepEqual(controller.it,{finish: "up"});
     assert.equal(controller.application,application);
     assert.equal(controller.name,"controlly");
-    assert.equal(controller.template,"tempy");
 
 });
 
@@ -205,5 +206,65 @@ QUnit.test("match", function(assert) {
         query: {a:'1',b:'2'},
         path: {that: "thang"}
     });
+
+});
+
+QUnit.test("router", function(assert) {
+
+    var application = new DoTRoute.Application();
+
+    try {
+        location.hash = "/any";
+        application.router();
+        assert.ok(false);
+    } catch (exception) {
+        assert.equal(exception.name,"DoTRoute.Exception");
+        assert.equal(exception.message,"Unable to route: #/any");
+    }
+
+    var controller = application.controller("controlly",{
+        route: function (value) {
+            this.it.direction = "routed";
+        },
+        arrayed: function (value) {
+            this.it.direction = "arrayed";
+        },
+        objected: function (value) {
+            this.it.direction = "objected";
+        },
+        proxied: function (value) {
+            this.it.direction = "proxied";
+        }
+    });
+
+    application.route("built-in","/","controlly");
+    location.hash = "",
+    application.router();
+    assert.equal(controller.it.direction,"routed")
+
+    application.route("listed","/this",["controlly","arrayed"]);
+    location.hash = "/this",
+    application.router();
+    assert.equal(controller.it.direction,"arrayed")
+
+    application.route("specific","/that",{controller: "controlly", action: "objected"});
+    location.hash = "/that",
+    application.router();
+    assert.equal(controller.it.direction,"objected")
+
+    application.route("special","/stuff",$.proxy(controller.proxied,controller));
+    location.hash = "/stuff",
+    application.router();
+    assert.equal(controller.it.direction,"proxied")
+
+    try {
+        application.route("numbered","/things",5);
+        location.hash = "/things";
+        application.router();
+        assert.ok(false);
+    } catch (exception) {
+        assert.equal(exception.name,"DoTRoute.Exception");
+        assert.equal(exception.message,"Unable to call callable for: #/things");
+    }
 
 });

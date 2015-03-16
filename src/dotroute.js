@@ -14,12 +14,11 @@ DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
 // Controller
 
-DoTRoute.Controller = function(application,name,template) {
+DoTRoute.Controller = function(application,name) {
 
     this.it = {};
     this.application = application;
     this.name = name;
-    this.template = template ? template : this.name;
 
 }
 
@@ -29,19 +28,20 @@ DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
 
 // render - Apply to current data
 
-DoTRoute.Controller.prototype.render = function() {
+DoTRoute.Controller.prototype.render = function(template) {
 
-    $(this.application.target,this.application.window.document).html(this.application.templates[this.template](this.it));
+    $(this.application.target,this.application.window.document).html(this.application.templates[template](this.it));
 
 }
 
 // Route
 
-DoTRoute.Route = function(name,path,callable) {
+DoTRoute.Route = function(name,path,callable,template) {
 
     this.name = name;
     this.patterns = [];
     this.callable = callable;
+    this.template = template ? template : this.name;
 
     var paths = path.split('/').slice(1);
 
@@ -125,9 +125,9 @@ DoTRoute.Application.prototype.controller = function(name,actions,template) {
 
 // route - Map a pattern to a callable entity
 
-DoTRoute.Application.prototype.route = function(name,path,callable) {
+DoTRoute.Application.prototype.route = function(name,path,callable,template) {
 
-    this.routes.push(new DoTRoute.Route(name,path,callable));
+    this.routes.push(new DoTRoute.Route(name,path,callable,template));
 
 }
 
@@ -200,11 +200,16 @@ DoTRoute.Application.prototype.router = function() {
 
     } else if (typeof(match.route.callable) == "object") {
 
-        this.controllers[match.route.callable.controller][match.route.callable.function](match);
+        this.controllers[match.route.callable.controller][match.route.callable.action](match);
+
+    } else if (typeof(match.route.callable) == "function") {
+
+        match.route.callable(match);
 
     } else {
 
-        match.route.callable(match);
+        throw new DoTRoute.Exception("Unable to call callable for: " + location.hash);
+
     }
 
 }
