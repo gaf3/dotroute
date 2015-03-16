@@ -12,6 +12,35 @@ DoTRoute.Exception = function(message) {
 DoTRoute.Exception.prototype = Object.create(Error.prototype);
 DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
+// Controller
+
+DoTRoute.Controller = function(application,name,template,actions) {
+
+    this.it = {};
+    this.application = application;
+    this.name = name;
+    this.template = template ? template : this.name;
+
+    for (var action in actions) {
+
+        this[action] = actions[action];
+
+    }
+
+}
+
+// Use as constructor
+
+DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
+
+// Render - Apply to current data
+
+DoTRoute.Controller.prototype.render = function() {
+
+    $(application.target).innerHTML = this.application.templates[this.template](this.it);
+
+}
+
 // Route
 
 DoTRoute.Route = function(name,path,callable) {
