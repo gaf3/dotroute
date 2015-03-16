@@ -22,16 +22,6 @@ DoTRoute.Controller = function(application,name) {
 
 }
 
-// Use as constructor
-
-DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
-
-// enter - When entered
-
-DoTRoute.Controller.prototype.enter = function() {
-
-}
-
 // render - Apply to current data
 
 DoTRoute.Controller.prototype.render = function(template) {
@@ -40,21 +30,22 @@ DoTRoute.Controller.prototype.render = function(template) {
 
 }
 
-// exit - When leaving
+// Use as constructor
 
-DoTRoute.Controller.prototype.exit = function() {
-
-}
+DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
 
 // Route
 
-DoTRoute.Route = function(name,path,template,callable) {
+DoTRoute.Route = function(application,name,path,template,enter,exit) {
 
+    this.application = application;
     this.name = name;
-    this.patterns = [];
+    this.path = path;
     this.template = template ? template : this.name;
-    this.callable = callable;
+    this.enter = enter ? enter : function () {};
+    this.exit = exit ? exit : function () {};
 
+    this.patterns = [];
     var paths = path.split('/').slice(1);
 
     for (var index = 0; index < paths.length; index++) {
@@ -102,8 +93,7 @@ DoTRoute.Application = function(target,pane) {
     this.current = {
         route: null,
         path: null,
-        query: null,
-        controller: null
+        query: null
     };
 
     this.target = target ? target : "body";
@@ -150,9 +140,9 @@ DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
 // route - Map a pattern to a callable entity
 
-DoTRoute.Application.prototype.route = function(name,path,template,callable) {
+DoTRoute.Application.prototype.route = function(name,path,template,enter,exit) {
 
-    this.routes.push(new DoTRoute.Route(name,path,template,callable));
+    this.routes.push(new DoTRoute.Route(this,name,path,template,enter,exit));
 
 }
 
@@ -214,45 +204,21 @@ DoTRoute.Application.prototype.router = function() {
     var hash = this.window.location.hash;
     var path = (hash.slice(1) || "/");
 
-    if (this.current.controller) {
-        this.current.controller.exit();
+    if (this.current.route) {
+        this.current.route.exit(this);
     }
 
     this.current = {
         route: null,
         path: null,
-        query: null,
-        controller: null
+        query: null
     };
 
     if (!this.match(path)) {
         throw new DoTRoute.Exception("Unable to route: " + hash);
     }
 
-    if (typeof(this.current.route.callable) == "string") {
-
-        this.current.controller = this.controllers[this.current.route.callable];
-        this.controllers[this.current.route.callable].enter();
-
-    } else if (typeof(this.current.route.callable) == "object" && $.isArray(this.current.route.callable)) {
-
-        this.current.controller = this.controllers[this.current.route.callable[0]];
-        this.controllers[this.current.route.callable[0]][this.current.route.callable[1]]();
-
-    } else if (typeof(this.current.route.callable) == "object") {
-
-        this.current.controller = this.controllers[this.current.route.callable.controller];
-        this.controllers[this.current.route.callable.controller][this.current.route.callable.action]();
-
-    } else if (typeof(this.current.route.callable) == "function") {
-
-        this.current.route.callable(this.current);
-
-    } else {
-
-        throw new DoTRoute.Exception("Unable to call callable for: " + hash);
-
-    }
+    this.current.route.enter(this);
 
 }
 

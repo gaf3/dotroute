@@ -30,15 +30,6 @@ QUnit.test("constructor", function(assert) {
 
 });
 
-QUnit.test("enter", function(assert) {
-
-    var controller = new DoTRoute.Controller("appy","controlly");
-
-    controller.enter();
-    assert.ok(true);
-
-});
-
 QUnit.test("render", function(assert) {
 
     this.controllerWindow = window.open("", "_blank", "width=200, height=100");
@@ -62,42 +53,39 @@ QUnit.test("render", function(assert) {
 
 });
 
-QUnit.test("exit", function(assert) {
-
-    var controller = new DoTRoute.Controller("appy","controlly");
-
-    controller.exit();
-    assert.ok(true);
-
-});
-
 QUnit.module("DoTRoute.Route");
 
 QUnit.test("constructor", function(assert) {
 
-    var simple = new DoTRoute.Route("simple","/this/that/","simply","simple()");
+    var simple = new DoTRoute.Route("appy","simple","/this/that/","simply","simple()","out()");
+    assert.equal(simple.application,"appy");
     assert.equal(simple.name,"simple");
     assert.deepEqual(simple.patterns,[{exact: "this"},{exact: "that"},{exact: ""}]);
-    assert.equal(simple.callable,"simple()");
     assert.equal(simple.template,"simply");
+    assert.equal(simple.enter,"simple()");
+    assert.equal(simple.exit,"out()");
 
-    var named = new DoTRoute.Route("named","/this/{that}/",null,"named()");
+    var named = new DoTRoute.Route("appy","named","/this/{that}/",null,"named()");
+    assert.equal(simple.application,"appy");
     assert.equal(named.name,"named");
     assert.deepEqual(named.patterns,[{exact: "this"},{parameter: "that"},{exact: ""}]);
-    assert.equal(named.callable,"named()");
     assert.equal(named.template,"named");
+    assert.equal(named.enter,"named()");
 
-    var words = new DoTRoute.Route("words","/this/{:\\w+:i}/",null,"words()");
+    var words = new DoTRoute.Route("appy","words","/this/{:\\w+:i}/",null,"words()");
+    assert.equal(simple.application,"appy");
     assert.equal(words.name,"words");
     assert.deepEqual(words.patterns,[{exact: "this"},{regex: /\w+/i},{exact: ""}]);
-    assert.equal(words.callable,"words()");
     assert.equal(words.template,"words");
+    assert.equal(words.enter,"words()");
 
-    var complex = new DoTRoute.Route("complex","/this/{that:\\w+:i}/",null,"complex()");
+    var complex = new DoTRoute.Route("appy","complex","/this/{that:\\w+:i}/");
+    assert.equal(simple.application,"appy");
     assert.equal(complex.name,"complex");
     assert.deepEqual(complex.patterns,[{exact: "this"},{parameter: "that",regex: /\w+/i},{exact: ""}]);
-    assert.equal(complex.callable,"complex()");
     assert.equal(complex.template,"complex");
+    complex.enter()
+    complex.exit()
 
 });
 
@@ -125,8 +113,7 @@ QUnit.test("constructor", function(assert) {
     assert.deepEqual(application.current, {
         route: null,
         path: null,
-        query: null,
-        controller: null
+        query: null
     });
     assert.equal(application.target,"span");
     assert.equal(application.window,this.applicationWindow);
@@ -204,16 +191,18 @@ QUnit.test("route", function(assert) {
 
     var application = new DoTRoute.Application();
 
-    application.route("simple","/this/that/",null,"simple()");
-    application.route("named","/this/{that}/",null,"named()");
+    application.route("simple","/this/that/",null,"simple()","out()");
+    application.route("named","/this/{that}/");
 
     assert.equal(application.routes[0].name,"simple");
     assert.deepEqual(application.routes[0].patterns,[{exact: "this"},{exact: "that"},{exact: ""}]);
-    assert.equal(application.routes[0].callable,"simple()");
+    assert.equal(application.routes[0].enter,"simple()");
+    assert.equal(application.routes[0].exit,"out()");
 
     assert.equal(application.routes[1].name,"named");
     assert.deepEqual(application.routes[1].patterns,[{exact: "this"},{parameter: "that"},{exact: ""}]);
-    assert.equal(application.routes[1].callable,"named()");
+    application.routes[1].enter();
+    application.routes[1].exit();
 
 });
 
@@ -230,19 +219,19 @@ QUnit.test("match", function(assert) {
     assert.deepEqual(application.current.query,{a:'1',b:'2'});
     assert.deepEqual(application.current.path,{});
 
-    application.routes[1] = new DoTRoute.Route("named","/this/{that}/",null,"named()");
+    application.routes[1] = new DoTRoute.Route(application,"named","/this/{that}/",null,"named()");
     assert.equal(application.match("/this/thang/?a=1&b=3"),true);
     assert.deepEqual(application.current.route,application.routes[1]);
     assert.deepEqual(application.current.query,{a:'1',b:'3'});
     assert.deepEqual(application.current.path,{that: "thang"});
 
-    application.routes[1] = new DoTRoute.Route("words","/this/{:\\w+:i}/",null,"words()");
+    application.routes[1] = new DoTRoute.Route(application,"words","/this/{:\\w+:i}/",null,"words()");
     assert.equal(application.match("/this/thang/?a=2&b=2"),true);
     assert.deepEqual(application.current.route,application.routes[1]);
     assert.deepEqual(application.current.query,{a:'2',b:'2'});
     assert.deepEqual(application.current.path,{});
 
-    application.routes[1] = new DoTRoute.Route("complex","/this/{that:\\w+:i}/",null,"complex()");
+    application.routes[1] = new DoTRoute.Route(application,"complex","/this/{that:\\w+:i}/",null,"complex()");
     assert.equal(application.match("/this/thang/?a=1&b=1"),true);
     assert.deepEqual(application.current.route,application.routes[1]);
     assert.deepEqual(application.current.query,{a:'1',b:'1'});
@@ -267,48 +256,28 @@ QUnit.test("router", function(assert) {
     }
 
     var controller = application.controller("controlly",null,{
-        enter: function (value) {
-            this.it.direction = "routed";
+        entering: function () {
+            this.it.self = "inside";
         },
-        arrayed: function (value) {
-            this.it.direction = "arrayed";
-        },
-        objected: function (value) {
-            this.it.direction = "objected";
-        },
-        proxied: function (value) {
-            this.it.direction = "proxied";
+        exiting: function () {
+            this.it.other = "outside";
         }
     });
 
-    application.route("built-in","/",null,"controlly");
+    application.route("built-in","/",null,$.proxy(controller.entering,controller),$.proxy(controller.exiting,controller));
     this.applicationWindow.location.hash = "",
     application.router();
-    assert.equal(controller.it.direction,"routed")
+    assert.equal(controller.it.self,"inside");
 
-    application.route("listed","/this",null,["controlly","arrayed"]);
+    application.route("listed","/this",null,function () { controller.it.self = "in"; },function () { controller.it.other = "out"; });
     this.applicationWindow.location.hash = "/this",
     application.router();
-    assert.equal(controller.it.direction,"arrayed")
+    assert.equal(controller.it.self,"in");
+    assert.equal(controller.it.other,"outside");
 
-    application.route("specific","/that",null,{controller: "controlly", action: "objected"});
-    this.applicationWindow.location.hash = "/that",
+    this.applicationWindow.location.hash = "",
     application.router();
-    assert.equal(controller.it.direction,"objected")
-
-    application.route("special","/stuff",null,$.proxy(controller.proxied,controller));
-    this.applicationWindow.location.hash = "/stuff",
-    application.router();
-    assert.equal(controller.it.direction,"proxied")
-
-    try {
-        application.route("numbered","/things",null,5);
-        this.applicationWindow.location.hash = "/things";
-        application.router();
-        assert.ok(false);
-    } catch (exception) {
-        assert.equal(exception.name,"DoTRoute.Exception");
-        assert.equal(exception.message,"Unable to call callable for: #/things");
-    }
+    assert.equal(controller.it.self,"inside");
+    assert.equal(controller.it.other,"out");
 
 });
