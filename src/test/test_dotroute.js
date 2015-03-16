@@ -9,6 +9,51 @@ QUnit.test("constructor", function(assert) {
 
 });
 
+QUnit.module("DoTRoute.Controller", {
+    setup: function() {
+    },
+    teardown: function() {
+        if ("controllerWindow" in this) {
+            this.controllerWindow.close();
+        }
+    }
+
+});
+
+QUnit.test("constructor", function(assert) {
+
+    var controller = new DoTRoute.Controller("appy","controlly");
+
+    assert.deepEqual(controller.it,{});
+    assert.equal(controller.application,"appy");
+    assert.equal(controller.name,"controlly");
+    assert.equal(controller.template,"controlly");
+
+});
+
+QUnit.test("render", function(assert) {
+
+    this.controllerWindow = window.open("", "_blank", "width=200, height=100");
+    this.controllerWindow.document.write("<span>people</span>");
+
+    var application = {
+        target: "span",
+        window: this.controllerWindow,
+        templates: {
+            ren: doT.template("<p>{{=it.stuff}}</p>")
+        }
+    };
+
+    var controller = new DoTRoute.Controller(application,"controlly","ren");
+
+    controller.it = {stuff: "things"};
+
+    controller.render();
+
+    assert.equal($("span",this.controllerWindow.document).text(),"things");
+
+});
+
 QUnit.module("DoTRoute.Route");
 
 QUnit.test("constructor", function(assert) {
@@ -51,6 +96,8 @@ QUnit.test("constructor", function(assert) {
     var application = new DoTRoute.Application();
 
     assert.deepEqual(application.routes,[]);
+    assert.deepEqual(application.templates,{});
+    assert.deepEqual(application.controllers,{});
 
 });
 
@@ -77,6 +124,33 @@ QUnit.test("template", function(assert) {
 
     application.template("complex","<p>{{#def.more}} {{=it.stuff}}</p>",null,{more: "people stuff"});
     assert.equal(application.templates.complex({stuff: 'things'}),"<p>people stuff things</p>");
+
+});
+
+QUnit.test("controller", function(assert) {
+
+    var application = new DoTRoute.Application();
+
+    var controller = application.controller("controlly");
+
+    assert.deepEqual(controller,application.controllers.controlly);
+    assert.deepEqual(controller.it,{});
+    assert.equal(controller.application,application);
+    assert.equal(controller.name,"controlly");
+    assert.equal(controller.template,"controlly");
+
+    var controller = application.controller("controlly",{
+        start: function (value) {
+            this.it.finish = value;
+        }
+    },"tempy");
+
+    controller.start("up");    
+
+    assert.deepEqual(controller.it,{finish: "up"});
+    assert.equal(controller.application,application);
+    assert.equal(controller.name,"controlly");
+    assert.equal(controller.template,"tempy");
 
 });
 
@@ -133,4 +207,3 @@ QUnit.test("match", function(assert) {
     });
 
 });
-

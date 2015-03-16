@@ -14,18 +14,12 @@ DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
 // Controller
 
-DoTRoute.Controller = function(application,name,template,actions) {
+DoTRoute.Controller = function(application,name,template) {
 
     this.it = {};
     this.application = application;
     this.name = name;
     this.template = template ? template : this.name;
-
-    for (var action in actions) {
-
-        this[action] = actions[action];
-
-    }
 
 }
 
@@ -33,11 +27,11 @@ DoTRoute.Controller = function(application,name,template,actions) {
 
 DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
 
-// Render - Apply to current data
+// render - Apply to current data
 
 DoTRoute.Controller.prototype.render = function() {
 
-    $(application.target).innerHTML = this.application.templates[this.template](this.it);
+    $(this.application.target,this.application.window.document).html(this.application.templates[this.template](this.it));
 
 }
 
@@ -91,6 +85,7 @@ DoTRoute.Application = function() {
 
     this.routes = [];
     this.templates = {};
+    this.controllers = {};
 
 }
 
@@ -98,7 +93,7 @@ DoTRoute.Application = function() {
 
 DoTRoute.Application.prototype.constructor = DoTRoute.Application;
 
-// Start - Start listening for events
+// start - Start listening for events
 
 DoTRoute.Application.prototype.start = function(target,pane) {
 
@@ -110,7 +105,7 @@ DoTRoute.Application.prototype.start = function(target,pane) {
 
 }
 
-// Template - Map a compiled template to a name
+// template - Map a compiled template to a name
 
 DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
@@ -118,7 +113,17 @@ DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
 }
 
-// Route - Map a pattern to a callable entity
+// controller - Map a controller to a name
+
+DoTRoute.Application.prototype.controller = function(name,actions,template) {
+
+    this.controllers[name] = $.extend(new DoTRoute.Controller(this,name,template),actions);
+
+    return this.controllers[name];
+
+}
+
+// route - Map a pattern to a callable entity
 
 DoTRoute.Application.prototype.route = function(name,path,callable) {
 
@@ -126,7 +131,7 @@ DoTRoute.Application.prototype.route = function(name,path,callable) {
 
 }
 
-// Route - match 
+// match - Find a matching route
 
 DoTRoute.Application.prototype.match = function(path) {
 
@@ -173,7 +178,7 @@ DoTRoute.Application.prototype.match = function(path) {
 
 }
 
-// Router - match route and call
+// router - match route and call
 
 DoTRoute.Application.prototype.router = function() {
 
@@ -181,10 +186,25 @@ DoTRoute.Application.prototype.router = function() {
 
     var match = this.match(path);
 
-    if (match) {
-        match.route.callable(match);
-    } else {
+    if (!match) {
         throw new DoTRoute.Exception("Unable to route: " + location.hash);
+    }
+
+    if (typeof(match.route.callable) == "string") {
+
+        this.controllers[match.route.callable].route(match);
+
+    } else if (typeof(match.route.callable) == "object" && $.isArray(match.route.callable)) {
+
+        this.controllers[match.route.callable[0]][match.route.callable[1]](match);
+
+    } else if (typeof(match.route.callable) == "object") {
+
+        this.controllers[match.route.callable.controller][match.route.callable.function](match);
+
+    } else {
+
+        match.route.callable(match);
     }
 
 }
