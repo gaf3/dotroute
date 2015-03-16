@@ -26,6 +26,12 @@ DoTRoute.Controller = function(application,name) {
 
 DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
 
+// enter - When entered
+
+DoTRoute.Controller.prototype.enter = function() {
+
+}
+
 // render - Apply to current data
 
 DoTRoute.Controller.prototype.render = function(template) {
@@ -34,14 +40,20 @@ DoTRoute.Controller.prototype.render = function(template) {
 
 }
 
+// exit - When leaving
+
+DoTRoute.Controller.prototype.exit = function() {
+
+}
+
 // Route
 
-DoTRoute.Route = function(name,path,callable,template) {
+DoTRoute.Route = function(name,path,template,callable) {
 
     this.name = name;
     this.patterns = [];
-    this.callable = callable;
     this.template = template ? template : this.name;
+    this.callable = callable;
 
     var paths = path.split('/').slice(1);
 
@@ -81,11 +93,21 @@ DoTRoute.Route.prototype.constructor = DoTRoute.Route;
 
 // Application
 
-DoTRoute.Application = function() {
+DoTRoute.Application = function(target,pane) {
 
     this.routes = [];
     this.templates = {};
     this.controllers = {};
+
+    this.current = {
+        route: null,
+        path: null,
+        query: null,
+        controller: null
+    };
+
+    this.target = target ? target : "body";
+    this.window = pane ? pane : window;
 
 }
 
@@ -95,10 +117,7 @@ DoTRoute.Application.prototype.constructor = DoTRoute.Application;
 
 // start - Start listening for events
 
-DoTRoute.Application.prototype.start = function(target,pane) {
-
-    this.target = target ? target : "body";
-    this.window = pane ? pane : window;
+DoTRoute.Application.prototype.start = function() {
 
     $(this.window).on('hashchange',$.proxy(this.router,this));  
     $(this.window).on('load',$.proxy(this.router,this));  
@@ -115,9 +134,15 @@ DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
 // controller - Map a controller to a name
 
-DoTRoute.Application.prototype.controller = function(name,actions,template) {
+DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
-    this.controllers[name] = $.extend(new DoTRoute.Controller(this,name,template),actions);
+    var controller = new DoTRoute.Controller(this,name);
+
+    if (base) {
+        controller = $.extend(this.controllers[base],controller);
+    }
+
+    this.controllers[name] = $.extend(controller,actions);
 
     return this.controllers[name];
 
@@ -125,9 +150,9 @@ DoTRoute.Application.prototype.controller = function(name,actions,template) {
 
 // route - Map a pattern to a callable entity
 
-DoTRoute.Application.prototype.route = function(name,path,callable,template) {
+DoTRoute.Application.prototype.route = function(name,path,template,callable) {
 
-    this.routes.push(new DoTRoute.Route(name,path,callable,template));
+    this.routes.push(new DoTRoute.Route(name,path,template,callable));
 
 }
 
@@ -170,11 +195,15 @@ DoTRoute.Application.prototype.match = function(path) {
 
         }
 
-        return {route: route,path: path,query: query};
+        this.current.route = route;
+        this.current.path = path;
+        this.current.query = query;
+
+        return true;
 
     }
 
-    return null;
+    return false;
 
 }
 
@@ -182,33 +211,46 @@ DoTRoute.Application.prototype.match = function(path) {
 
 DoTRoute.Application.prototype.router = function() {
 
-    var path = (location.hash.slice(1) || "/");
+    var hash = this.window.location.hash;
+    var path = (hash.slice(1) || "/");
 
-    var match = this.match(path);
-
-    if (!match) {
-        throw new DoTRoute.Exception("Unable to route: " + location.hash);
+    if (this.current.controller) {
+        this.current.controller.exit();
     }
 
-    if (typeof(match.route.callable) == "string") {
+    this.current = {
+        route: null,
+        path: null,
+        query: null,
+        controller: null
+    };
 
-        this.controllers[match.route.callable].route(match);
+    if (!this.match(path)) {
+        throw new DoTRoute.Exception("Unable to route: " + hash);
+    }
 
-    } else if (typeof(match.route.callable) == "object" && $.isArray(match.route.callable)) {
+    if (typeof(this.current.route.callable) == "string") {
 
-        this.controllers[match.route.callable[0]][match.route.callable[1]](match);
+        this.current.controller = this.controllers[this.current.route.callable];
+        this.controllers[this.current.route.callable].enter();
 
-    } else if (typeof(match.route.callable) == "object") {
+    } else if (typeof(this.current.route.callable) == "object" && $.isArray(this.current.route.callable)) {
 
-        this.controllers[match.route.callable.controller][match.route.callable.action](match);
+        this.current.controller = this.controllers[this.current.route.callable[0]];
+        this.controllers[this.current.route.callable[0]][this.current.route.callable[1]]();
 
-    } else if (typeof(match.route.callable) == "function") {
+    } else if (typeof(this.current.route.callable) == "object") {
 
-        match.route.callable(match);
+        this.current.controller = this.controllers[this.current.route.callable.controller];
+        this.controllers[this.current.route.callable.controller][this.current.route.callable.action]();
+
+    } else if (typeof(this.current.route.callable) == "function") {
+
+        this.current.route.callable(this.current);
 
     } else {
 
-        throw new DoTRoute.Exception("Unable to call callable for: " + location.hash);
+        throw new DoTRoute.Exception("Unable to call callable for: " + hash);
 
     }
 
