@@ -165,7 +165,7 @@ DoTRoute.Application.prototype.route = function(name,path,template,controller,en
     if (typeof(enter) == "string" && enter in controller) {
         enter = $.proxy(controller[enter],controller);
     } else {
-        enter = enter ? enter : function () {this.application.render(this.template)};
+        enter = enter ? enter : function () {this.application.render()};
     }
 
     if (typeof(exit) == "string" && exit in controller) {
@@ -186,6 +186,11 @@ DoTRoute.Application.prototype.route = function(name,path,template,controller,en
 DoTRoute.Application.prototype.link = function(route) {
 
     if (typeof(route) == "string") {
+
+        if (!(route in this.routes)) {
+            throw new DoTRoute.Exception("Can't find route: " + route);
+        }
+
         route = this.routes[route];
     }
 
@@ -205,6 +210,14 @@ DoTRoute.Application.prototype.go = function(route) {
 
     this.window.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link(route);
     this.router();
+
+}
+
+// refresh - Just reload the route
+
+DoTRoute.Application.prototype.refresh = function() {
+
+    this.go(this.current.route);
 
 }
 
@@ -290,7 +303,11 @@ DoTRoute.Application.prototype.router = function() {
 
 // render - Apply to current data
 
-DoTRoute.Application.prototype.render = function(template,it,target,pane) {
+DoTRoute.Application.prototype.render = function(it,template,target,pane) {
+
+    if (!template) {
+        template = this.current.route.template;
+    }
 
     if (!target) {
         target = this.target;

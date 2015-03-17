@@ -193,6 +193,7 @@ QUnit.test("route", function(assert) {
     assert.deepEqual(route.patterns,[{exact: "this"},{exact: "that"},{exact: ""}]);
     assert.deepEqual(route.template,template);
     assert.equal(route.controller,null);
+    application.current.route = route;
     route.enter();
     assert.equal($("span",this.applicationWindow.document).text(),"things");
     route.exit();
@@ -325,6 +326,14 @@ QUnit.test("link", function(assert) {
     assert.equal(application.link(people),"#/people/stuff/");
     assert.equal(application.link("things",2,3),"#/things/2/3/");
 
+    try {
+        application.link("stuff");
+        assert.ok(false);
+    } catch (exception) {
+        assert.equal(exception.name,"DoTRoute.Exception");
+        assert.equal(exception.message,"Can't find route: stuff");
+    }
+
 });
 
 QUnit.test("go", function(assert) {
@@ -347,6 +356,29 @@ QUnit.test("go", function(assert) {
 
 });
 
+QUnit.test("refresh", function(assert) {
+
+    this.applicationWindow = window.open("", "_blank", "width=200, height=100");
+    this.applicationWindow.document.write("<span></span>");
+
+    var application = new DoTRoute.Application("span",this.applicationWindow,true);
+    application.template("people","<p>stuff</p>");
+    application.template("stuff","<p>things</p>");
+
+    application.route("people","/people/");
+    application.route("stuff","/stuff/");
+
+    application.go("people");
+    assert.equal($("span",this.applicationWindow.document).text(),"stuff");
+
+    $("span",this.applicationWindow.document).html(application.templates.stuff());
+    assert.equal($("span",this.applicationWindow.document).text(),"things");
+
+    application.refresh();
+    assert.equal($("span",this.applicationWindow.document).text(),"stuff");
+
+});
+
 QUnit.test("render", function(assert) {
 
     this.applicationWindow = window.open("", "_blank", "width=200, height=100");
@@ -354,15 +386,16 @@ QUnit.test("render", function(assert) {
 
     var application = new DoTRoute.Application("span",this.applicationWindow,true);
     var template = application.template("simple","<p>{{=it.stuff}}</p>");
+    application.current.route = {template: template};
 
-    application.render(template,{stuff: "things"});
+    application.render({stuff: "things"});
 
     assert.equal($("span",this.applicationWindow.document).text(),"things");
 
     this.renderWindow = window.open("", "_blank", "width=200, height=100");
     this.renderWindow.document.write("<div></div>");
 
-    application.render(template,{stuff: "people"},"div",this.renderWindow);
+    application.render({stuff: "people"},template,"div",this.renderWindow);
 
     assert.equal($("span",this.applicationWindow.document).text(),"things");
     assert.equal($("div",this.renderWindow.document).text(),"people");
