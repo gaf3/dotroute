@@ -22,14 +22,6 @@ DoTRoute.Controller = function(application,name) {
 
 }
 
-// render - Apply to current data
-
-DoTRoute.Controller.prototype.render = function(template) {
-
-    $(this.application.target,this.application.window.document).html(this.application.templates[template](this.it));
-
-}
-
 // Use as constructor
 
 DoTRoute.Controller.prototype.constructor = DoTRoute.Controller;
@@ -85,13 +77,15 @@ DoTRoute.Route.prototype.constructor = DoTRoute.Route;
 
 // Application
 
-DoTRoute.Application = function(target,pane) {
+DoTRoute.Application = function(target,pane,wait) {
 
-    this.routes = [];
+    this.routes = {};
+    this.routing = [];
     this.templates = {};
     this.controllers = {};
 
     this.current = {
+        paths: null,
         controller: null,
         route: null,
         path: null,
@@ -100,6 +94,10 @@ DoTRoute.Application = function(target,pane) {
 
     this.target = target ? target : "body";
     this.window = pane ? pane : window;
+
+    if (!wait) {
+        this.start();
+    }
 
 }
 
@@ -121,6 +119,8 @@ DoTRoute.Application.prototype.start = function() {
 DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
     this.templates[name] = doT.template(text,custom,data);
+
+    return this.templates[name];
 
 }
 
@@ -144,24 +144,56 @@ DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
 DoTRoute.Application.prototype.route = function(name,path,template,controller,enter,exit) {
 
-    template = template && typeof(template) == "string" ? this.templates[template] : template;
-    controller = controller && typeof(controller) == "string" ? this.controllers[controller] : controller;
-
-    if (controller && typeof(enter) == "string") {
-        enter = $.proxy(controller[enter],controller);
-    } else {
-        enter = enter ? enter : function () {};
+    if (!template) {
+        template = name;
     }
 
-    if (controller && typeof(exit) == "string") {
+    template = typeof(template) == "string" && template in this.templates ? this.templates[template] : template;
+    controller = typeof(controller) == "string" && controller in this.controllers ? this.controllers[controller] : controller;
+
+    if (typeof(enter) == "string" && enter in controller) {
+        enter = $.proxy(controller[enter],controller);
+    } else {
+        enter = enter ? enter : function () {this.application.render(this.template)};
+    }
+
+    if (typeof(exit) == "string" && exit in controller) {
         exit = $.proxy(controller[exit],controller);
     } else {
         exit = exit ? exit : function () {};
     }
 
-    this.routes.push(new DoTRoute.Route(this,name,path,template,controller,enter,exit));
+    this.routes[name] = new DoTRoute.Route(this,name,path,template,controller,enter,exit);
+    this.routing.push(name);
 
-    return this.routes.slice(-1)[0];
+    return this.routes[name];
+
+}
+
+// link - Link to a route
+
+DoTRoute.Application.prototype.link = function(route) {
+
+    if (typeof(route) == "string") {
+        route = this.routes[route];
+    }
+
+    var paths = [];
+    var argument = 1;
+    for (var index = 0; index < route.patterns.length; index++) {
+        paths.push("exact" in route.patterns[index] ? route.patterns[index].exact : arguments[argument++]);
+    }
+
+    return "#/" + paths.join("/");
+
+}
+
+// go - Jump to a route
+
+DoTRoute.Application.prototype.go = function(route) {
+
+    this.window.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link(route);
+    this.router();
 
 }
 
@@ -180,9 +212,9 @@ DoTRoute.Application.prototype.match = function(path) {
         });
     }
 
-    route_loop: for (var route_index = 0; route_index < this.routes.length; route_index++) {
+    route_loop: for (var route_index = 0; route_index < this.routing.length; route_index++) {
 
-        var route = this.routes[route_index];
+        var route = this.routes[this.routing[route_index]];
         var path = {};
 
         if (paths.length != route.patterns.length) {
@@ -204,6 +236,7 @@ DoTRoute.Application.prototype.match = function(path) {
 
         }
 
+        this.current.paths = paths;
         this.current.controller = route.controller;
         this.current.route = route;
         this.current.path = path;
@@ -229,6 +262,7 @@ DoTRoute.Application.prototype.router = function() {
     }
 
     this.current = {
+        paths: null,
         controller: null,
         route: null,
         path: null,
@@ -240,6 +274,14 @@ DoTRoute.Application.prototype.router = function() {
     }
 
     this.current.route.enter(this);
+
+}
+
+// render - Apply to current data
+
+DoTRoute.Application.prototype.render = function(template,it) {
+
+    $(this.target,this.window.document).html(template(it));
 
 }
 
