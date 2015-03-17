@@ -17,7 +17,7 @@ I neither need nor want data binding.  In the example Todo app for Ember, the ab
 
 ### Logicless Templates
 
-All templates have logic, that's what makes them a template and not a static file.  When you use a templating system that's called "logicless," it means you move the exact same logic you'd put in a template to some other part of the code.  You see this most common with simple boolean expressions have to be set as a variable in the model. This separates what's exactly going, and creates more code that is harder to understand. 
+All templates have logic, that's what makes them a template and not a static file.  When you use a templating system that's called "logicless," it means you move the exact same logic you'd put in a template to some other part of the code.  You see this most common with simple boolean expressions have to be set as a variable in the model only to be used in if statements somewhere else (which is logic btw). This separates what's happening from where it's used and creates more code that is harder to understand. 
 
 ### The _____ Way
 
@@ -27,7 +27,7 @@ This seems to be a rising problem with frameworks in general.  Often they have t
 
 ### Play Nice
 
-I find jQuery very useful, doT.js looks promising, and routing shouldn't be to tough.  I'd like all these pieces to work together and use what they've done vs. build on it.  I want to make it easy to call a route function from an OnClick tag and it all just work.
+I find jQuery very useful, doT.js looks promising, and routing shouldn't be to tough.  I'd like all these pieces to work together and use what they've done vs. build on it.  I want to make it easy to call a route function from an OnClick tag, do something in a controller from outside it, and it all just work.
 
 ### Beyond CRUD
 
@@ -39,5 +39,5 @@ I want asynchronous calls to work the way the good JavaScript Lord intended.  A 
 
 ### Keep It Simple
 
-All and all, I don't want to pack in a bunch of automagic features that makes your first app a few lines of code.  It's not the first day of a project I care about.  It's all the other days. I want to take patterns that we'd normally do over and over, and abstract them with easy to use functionality.
+All and all, I don't want to pack in a bunch of automagic features that makes your first app a few lines of code.  It's not the first day of a project I care about.  It's all the other days. I want to take patterns that we'd normally do over and over and abstract them with easy to use functionality.
 
