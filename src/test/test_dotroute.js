@@ -125,6 +125,14 @@ QUnit.test("template", function(assert) {
     application.template("complex","<p>{{#def.more}} {{=it.stuff}}</p>",null,{more: "people stuff"});
     assert.equal(application.templates.complex({stuff: 'things'}),"<p>people stuff things</p>");
 
+    try {
+    var template = application.template("broken","<p>{{!=it.stuff}}</p>");
+        assert.ok(false);
+    } catch (exception) {
+        assert.equal(exception.name,"DoTRoute.Exception");
+        assert.equal(exception.message,"Failed to compile broken: SyntaxError: expected expression, got '='");
+    }
+
 });
 
 QUnit.test("controller", function(assert) {
@@ -346,13 +354,14 @@ QUnit.test("go", function(assert) {
     application.template("stuff","<p>things</p>");
 
     application.route("people","/people/");
-    application.route("stuff","/stuff/");
+    application.route("stuff","/stuff/{:\\d+}/{:\\d+}");
 
-    application.go("people");
+    application.go("#/people/");
     assert.equal($("span",this.applicationWindow.document).text(),"stuff");
 
-    application.go("#/stuff/");
+    application.go("stuff",1,2);
     assert.equal($("span",this.applicationWindow.document).text(),"things");
+    assert.equal(this.applicationWindow.location.hash,"#/stuff/1/2");
 
 });
 

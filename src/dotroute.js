@@ -129,7 +129,12 @@ DoTRoute.Application.prototype.partial = function(name,text) {
 
 DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
-    this.templates[name] = doT.template(text,custom,data);
+    try {
+        this.templates[name] = doT.template(text,custom,data);
+    }
+    catch (exception) {
+        throw new DoTRoute.Exception("Failed to compile " + name + ": " + exception);
+    }
 
     return this.templates[name];
 
@@ -208,7 +213,7 @@ DoTRoute.Application.prototype.link = function(route) {
 
 DoTRoute.Application.prototype.go = function(route) {
 
-    this.window.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link(route);
+    this.window.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
     this.router();
 
 }
