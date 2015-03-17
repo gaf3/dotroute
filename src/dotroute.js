@@ -81,6 +81,7 @@ DoTRoute.Application = function(target,pane,wait) {
 
     this.routes = {};
     this.routing = [];
+    this.partials = {};
     this.templates = {};
     this.controllers = {};
 
@@ -111,6 +112,16 @@ DoTRoute.Application.prototype.start = function() {
 
     $(this.window).on('hashchange',$.proxy(this.router,this));  
     $(this.window).on('load',$.proxy(this.router,this));  
+
+}
+
+// partial - Map an uncompiled template to a name
+
+DoTRoute.Application.prototype.partial = function(name,text) {
+
+    this.partials[name] = text;
+
+    return this.partials[name];
 
 }
 
@@ -279,9 +290,17 @@ DoTRoute.Application.prototype.router = function() {
 
 // render - Apply to current data
 
-DoTRoute.Application.prototype.render = function(template,it) {
+DoTRoute.Application.prototype.render = function(template,it,target,pane) {
 
-    $(this.target,this.window.document).html(template(it));
+    if (!target) {
+        target = this.target;
+    }
+
+    if (!pane) {
+        pane = this.window;
+    }
+
+    $(target,pane.document).html(template(it));
 
 }
 

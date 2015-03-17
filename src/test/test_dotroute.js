@@ -60,6 +60,9 @@ QUnit.module("DoTRoute.Application", {
         if ("applicationWindow" in this) {
             this.applicationWindow.close();
         }
+        if ("renderWindow" in this) {
+            this.renderWindow.close();
+        }
     }
 
 });
@@ -73,6 +76,7 @@ QUnit.test("constructor", function(assert) {
 
     assert.deepEqual(application.routes,{});
     assert.deepEqual(application.routing,[]);
+    assert.deepEqual(application.partials,{});
     assert.deepEqual(application.templates,{});
     assert.deepEqual(application.controllers,{});
     assert.deepEqual(application.current, {
@@ -97,6 +101,16 @@ QUnit.test("start", function(assert) {
     application.start();
 
     assert.ok(true);
+
+});
+
+QUnit.test("partial", function(assert) {
+
+    var application = new DoTRoute.Application(null,null,true);
+
+    var partial = application.partial("simple","<p>{{=it.stuff}}</p>");
+    assert.deepEqual(partial,application.partials.simple);
+    assert.equal(partial,"<p>{{=it.stuff}}</p>");
 
 });
 
@@ -344,6 +358,14 @@ QUnit.test("render", function(assert) {
     application.render(template,{stuff: "things"});
 
     assert.equal($("span",this.applicationWindow.document).text(),"things");
+
+    this.renderWindow = window.open("", "_blank", "width=200, height=100");
+    this.renderWindow.document.write("<div></div>");
+
+    application.render(template,{stuff: "people"},"div",this.renderWindow);
+
+    assert.equal($("span",this.applicationWindow.document).text(),"things");
+    assert.equal($("div",this.renderWindow.document).text(),"people");
 
 });
 
