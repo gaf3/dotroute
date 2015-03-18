@@ -218,7 +218,7 @@ DoTRoute.Application.prototype.go = function(route) {
 
 DoTRoute.Application.prototype.refresh = function() {
 
-    this.go(this.current.route);
+    this.router();
 
 }
 
