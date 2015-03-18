@@ -160,10 +160,6 @@ DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
 DoTRoute.Application.prototype.route = function(name,path,template,controller,enter,exit) {
 
-    if (!template) {
-        template = name;
-    }
-
     template = typeof(template) == "string" && template in this.templates ? this.templates[template] : template;
     controller = typeof(controller) == "string" && controller in this.controllers ? this.controllers[controller] : controller;
 

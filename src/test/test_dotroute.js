@@ -13,11 +13,11 @@ QUnit.module("DoTRoute.Controller");
 
 QUnit.test("constructor", function(assert) {
 
-    var controller = new DoTRoute.Controller("appy","controlly");
+    var controller = new DoTRoute.Controller("Appy","Controlly");
 
     assert.deepEqual(controller.it,{});
-    assert.equal(controller.application,"appy");
-    assert.equal(controller.name,"controlly");
+    assert.equal(controller.application,"Appy");
+    assert.equal(controller.name,"Controlly");
 
 });
 
@@ -25,24 +25,24 @@ QUnit.module("DoTRoute.Route");
 
 QUnit.test("constructor", function(assert) {
 
-    var simple = new DoTRoute.Route("appy","simple","/this/that/");
-    assert.equal(simple.application,"appy");
+    var simple = new DoTRoute.Route("Appy","simple","/this/that/");
+    assert.equal(simple.application,"Appy");
     assert.equal(simple.name,"simple");
     assert.deepEqual(simple.patterns,[{exact: "this"},{exact: "that"},{exact: ""}]);
     assert.equal(simple.template,null);
     assert.equal(simple.controller,null);
 
-    var named = new DoTRoute.Route("appy","named","/this/{that}/","tempy","controlly","entering()","exiting()");
-    assert.equal(simple.application,"appy");
+    var named = new DoTRoute.Route("Appy","named","/this/{that}/","Tempy","Controlly","entering()","exiting()");
+    assert.equal(simple.application,"Appy");
     assert.equal(named.name,"named");
     assert.deepEqual(named.patterns,[{exact: "this"},{parameter: "that"},{exact: ""}]);
-    assert.equal(named.template,"tempy");
-    assert.equal(named.controller,"controlly");
+    assert.equal(named.template,"Tempy");
+    assert.equal(named.controller,"Controlly");
     assert.equal(named.enter,"entering()");
     assert.equal(named.exit,"exiting()");
 
-    var words = new DoTRoute.Route("appy","words","/this/{:\\w+:i}/");
-    assert.equal(simple.application,"appy");
+    var words = new DoTRoute.Route("Appy","words","/this/{:\\w+:i}/");
+    assert.equal(simple.application,"Appy");
     assert.equal(words.name,"words");
     assert.deepEqual(words.patterns,[{exact: "this"},{regex: /\w+/i},{exact: ""}]);
 
@@ -108,8 +108,8 @@ QUnit.test("partial", function(assert) {
 
     var application = new DoTRoute.Application(null,null,true);
 
-    var partial = application.partial("simple","<p>{{=it.stuff}}</p>");
-    assert.deepEqual(partial,application.partials.simple);
+    var partial = application.partial("Simple","<p>{{=it.stuff}}</p>");
+    assert.deepEqual(partial,application.partials.Simple);
     assert.equal(partial,"<p>{{=it.stuff}}</p>");
 
 });
@@ -118,19 +118,19 @@ QUnit.test("template", function(assert) {
 
     var application = new DoTRoute.Application(null,null,true);
 
-    var template = application.template("simple","<p>{{=it.stuff}}</p>");
-    assert.deepEqual(template,application.templates.simple);
-    assert.equal(application.templates.simple({stuff: 'things'}),"<p>things</p>");
+    var template = application.template("Simple","<p>{{=it.stuff}}</p>");
+    assert.deepEqual(template,application.templates.Simple);
+    assert.equal(application.templates.Simple({stuff: 'things'}),"<p>things</p>");
 
-    application.template("complex","<p>{{#def.more}} {{=it.stuff}}</p>",null,{more: "people stuff"});
-    assert.equal(application.templates.complex({stuff: 'things'}),"<p>people stuff things</p>");
+    application.template("Complex","<p>{{#def.more}} {{=it.stuff}}</p>",null,{more: "people stuff"});
+    assert.equal(application.templates.Complex({stuff: 'things'}),"<p>people stuff things</p>");
 
     try {
-    var template = application.template("broken","<p>{{!=it.stuff}}</p>");
+    var template = application.template("Broken","<p>{{!=it.stuff}}</p>");
         assert.ok(false);
     } catch (exception) {
         assert.equal(exception.name,"DoTRoute.Exception");
-        assert.equal(exception.message,"Failed to compile broken: SyntaxError: expected expression, got '='");
+        assert.equal(exception.message,"Failed to compile Broken: SyntaxError: expected expression, got '='");
     }
 
 });
@@ -139,14 +139,14 @@ QUnit.test("controller", function(assert) {
 
     var application = new DoTRoute.Application(null,null,true);
 
-    var controller = application.controller("controlly");
+    var controller = application.controller("Controlly");
 
-    assert.deepEqual(controller,application.controllers.controlly);
+    assert.deepEqual(controller,application.controllers.Controlly);
     assert.deepEqual(controller.it,{});
     assert.equal(controller.application,application);
-    assert.equal(controller.name,"controlly");
+    assert.equal(controller.name,"Controlly");
 
-    var controller = application.controller("controlly",null,{
+    var controller = application.controller("Controlly",null,{
         start: function (value) {
             this.it.begin = value;
         },
@@ -159,10 +159,10 @@ QUnit.test("controller", function(assert) {
     controller.finish("down");    
 
     assert.equal(controller.application,application);
-    assert.equal(controller.name,"controlly");
+    assert.equal(controller.name,"Controlly");
     assert.deepEqual(controller.it,{begin: "up", end: "down"});
 
-    var controller = application.controller("extendy","controlly",{
+    var controller = application.controller("Extendy","Controlly",{
         start: function (value) {
             this.it.begin = "sideways";
         }
@@ -172,7 +172,7 @@ QUnit.test("controller", function(assert) {
     controller.finish("down");    
 
     assert.equal(controller.application,application);
-    assert.equal(controller.name,"extendy");
+    assert.equal(controller.name,"Extendy");
     assert.deepEqual(controller.it,{begin: "sideways", end: "down"});
 
 });
@@ -183,8 +183,8 @@ QUnit.test("route", function(assert) {
     this.applicationWindow.document.write("<span></span>");
 
     var application = new DoTRoute.Application("span",this.applicationWindow,true);
-    var template = application.template("simple","<p>things</p>");
-    var controller = application.controller("controlly",null,{
+    var template = application.template("Simple","<p>things</p>");
+    var controller = application.controller("Controlly",null,{
         start: function (value) {
             this.it.begin = value;
         },
@@ -193,7 +193,7 @@ QUnit.test("route", function(assert) {
         }
     });
 
-    var route = application.route("simple","/this/that/");
+    var route = application.route("simple","/this/that/","Simple");
     assert.deepEqual(application.routes.simple,route);
     assert.equal(application.routing[0],"simple");
     assert.equal(route.name,"simple");
@@ -206,7 +206,7 @@ QUnit.test("route", function(assert) {
     assert.equal($("span",this.applicationWindow.document).text(),"things");
     route.exit();
 
-    var route = application.route("named","/this/{that}/",template,"controlly","start","finish");
+    var route = application.route("named","/this/{that}/",template,"Controlly","start","finish");
     assert.deepEqual(application.routes.named,route);
     assert.equal(application.routing[1],"named");
     assert.equal(route.name,"named");
@@ -243,7 +243,7 @@ QUnit.test("route", function(assert) {
 QUnit.test("match", function(assert) {
 
     var application = new DoTRoute.Application(null,null,true);
-    var controller = application.controller("simply");
+    var controller = application.controller("Simply");
 
     application.route("wrong","/way/charlie/");
     assert.equal(application.match("/this/that/?a=1&b=2"),false);
@@ -288,7 +288,7 @@ QUnit.test("router", function(assert) {
     this.applicationWindow.document.write("<span></span>");
 
     var application = new DoTRoute.Application("span",this.applicationWindow,true);
-    var controller = application.controller("controlly",null,{
+    var controller = application.controller("Controlly",null,{
         entering: function () {
             this.it.self = "inside";
         },
@@ -306,7 +306,7 @@ QUnit.test("router", function(assert) {
         assert.equal(exception.message,"Unable to route: #/any");
     }
 
-    application.route("built-in","/",null,"controlly","entering","exiting");
+    application.route("built-in","/",null,"Controlly","entering","exiting");
     this.applicationWindow.location.hash = "",
     application.router();
     assert.equal(controller.it.self,"inside");
@@ -350,11 +350,11 @@ QUnit.test("go", function(assert) {
     this.applicationWindow.document.write("<span></span>");
 
     var application = new DoTRoute.Application("span",this.applicationWindow,true);
-    application.template("people","<p>stuff</p>");
-    application.template("stuff","<p>things</p>");
+    application.template("People","<p>stuff</p>");
+    application.template("Stuff","<p>things</p>");
 
-    application.route("people","/people/");
-    application.route("stuff","/stuff/{:\\d+}/{:\\d+}");
+    application.route("people","/people/","People");
+    application.route("stuff","/stuff/{:\\d+}/{:\\d+}","Stuff");
 
     application.go("#/people/");
     assert.equal($("span",this.applicationWindow.document).text(),"stuff");
@@ -371,16 +371,16 @@ QUnit.test("refresh", function(assert) {
     this.applicationWindow.document.write("<span></span>");
 
     var application = new DoTRoute.Application("span",this.applicationWindow,true);
-    application.template("people","<p>stuff</p>");
-    application.template("stuff","<p>things</p>");
+    application.template("People","<p>stuff</p>");
+    application.template("Stuff","<p>things</p>");
 
-    application.route("people","/people/");
-    application.route("stuff","/stuff/");
+    application.route("people","/people/","People");
+    application.route("stuff","/stuff/","Stuff");
 
     application.go("people");
     assert.equal($("span",this.applicationWindow.document).text(),"stuff");
 
-    $("span",this.applicationWindow.document).html(application.templates.stuff());
+    $("span",this.applicationWindow.document).html(application.templates.Stuff());
     assert.equal($("span",this.applicationWindow.document).text(),"things");
 
     application.refresh();
