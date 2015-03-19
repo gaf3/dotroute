@@ -59,6 +59,8 @@ MyApp.route("east","/east/","Complex","Doors","side");
 
 ## Application
 
+Main object in the framework
+
 - target - jQuery target for rendering. Used as $(application.target).
 - pane - Window for rendering. Used as $(application.target,application.pane.document).
 - routes - Object of all routes. Used as application.routes.{route name}.
@@ -72,6 +74,27 @@ MyApp.route("east","/east/","Complex","Doors","side");
   - paths - Array of what's in the path. URL: "#/this/that/5/" => paths: ["this","that","5",""]
   - path - Parameters object from path as defined by the route. URL: "#/this/that/5/" => Route: "/this/{thing}/{id}/" => path: {thing: "this",id: 5}
   - query - Parameters object from the query. Not used for routing. URL: "#/this?that=3" => query: {that: "3"}
+
+## Route
+
+Maps a hash pattern to actions.
+
+- application - The application that created the route
+- name - The name of the route used for referencing. Used as application.routes.{route name}
+- path - The path in text for matching hashes. Can have parameters and/or regular expressions.
+  - "/this/that/" matches "#/this/this/"
+  - "/this/{thing}/" matches "#/this/*/" and whatever's in * ends up in application.current.path.thing
+  - "/this/{:^\\d+$}/{:^\\w+$:i}/" matches "#/this/(any number)/(any word, case insensitive)/"
+  - "/this/{id:\\d+}" matches "#/this/(any number)" and the number ends up in application.current.path.id
+- patterns - The compile path for matching hashes
+  - "/this/that/" becomes [{exact: "this"},{exact: "that"},{exact: ""}] (Note the last blank, trailing /'s matter!)
+  - "/this/{thing}/" becomes [{exact: "this"},{parameter: "thing"},{exact: ""}]
+  - "/this/{:^\\d+$}/{:^\\w+$:i}/" becomes [{exact: "this"},{regex: /^\d+$/},{regex: /^\w+$/i},{exact: ""}]
+  - "/this/{id:\\d+}" becomes [{exact: "this"},{parameter: "id",regex: /^\d+$/},{exact: ""}]
+- template - The template object for this route.  Used by application.render in that if not template is specified, uses the current route's template. 
+- controller - The controller object for this route.  Can be used to grab the controller's it context. 
+- enter - Function called with entering the route.  Can be anonymous or part of its controller.
+- exit - Function called with exiting the route.  Can be anonymous or part of its controller. 
 
 ## constructor(target,pane,wait)
 
