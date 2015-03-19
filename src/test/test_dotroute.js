@@ -87,7 +87,7 @@ QUnit.test("constructor", function(assert) {
         query: null
     });
     assert.equal(application.target,"span");
-    assert.equal(application.window,this.applicationWindow);
+    assert.equal(application.pane,this.applicationWindow);
 
 });
 

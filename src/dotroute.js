@@ -94,7 +94,7 @@ DoTRoute.Application = function(target,pane,wait) {
     };
 
     this.target = target ? target : "body";
-    this.window = pane ? pane : window;
+    this.pane = pane ? pane : window;
 
     if (!wait) {
         this.start();
@@ -110,8 +110,8 @@ DoTRoute.Application.prototype.constructor = DoTRoute.Application;
 
 DoTRoute.Application.prototype.start = function() {
 
-    $(this.window).on('hashchange',$.proxy(this.router,this));  
-    $(this.window).on('load',$.proxy(this.router,this));  
+    $(this.pane).on('hashchange',$.proxy(this.router,this));  
+    $(this.pane).on('load',$.proxy(this.router,this));  
 
 }
 
@@ -209,7 +209,7 @@ DoTRoute.Application.prototype.link = function(route) {
 
 DoTRoute.Application.prototype.go = function(route) {
 
-    this.window.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
+    this.pane.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
     this.router();
 
 }
@@ -279,7 +279,7 @@ DoTRoute.Application.prototype.match = function(path) {
 
 DoTRoute.Application.prototype.router = function() {
 
-    var hash = this.window.location.hash;
+    var hash = this.pane.location.hash;
     var path = (hash.slice(1) || "/");
 
     if (this.current.route) {
@@ -315,7 +315,7 @@ DoTRoute.Application.prototype.render = function(it,template,target,pane) {
     }
 
     if (!pane) {
-        pane = this.window;
+        pane = this.pane;
     }
 
     $(target,pane.document).html(template(it));
