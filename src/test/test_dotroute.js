@@ -375,16 +375,16 @@ QUnit.test("refresh", function(assert) {
     application.template("Stuff","<p>things</p>");
 
     application.route("people","/people/","People");
-    application.route("stuff","/stuff/","Stuff");
+    application.route("stuff","/stuff/{:\\d+}/{:\\d+}","Stuff");
 
-    application.go("people");
-    assert.equal($("span",this.applicationWindow.document).text(),"stuff");
-
-    $("span",this.applicationWindow.document).html(application.templates.Stuff());
+    application.go("stuff",1,2);
     assert.equal($("span",this.applicationWindow.document).text(),"things");
 
-    application.refresh();
+    $("span",this.applicationWindow.document).html(application.templates.People());
     assert.equal($("span",this.applicationWindow.document).text(),"stuff");
+
+    application.refresh();
+    assert.equal($("span",this.applicationWindow.document).text(),"things");
 
 });
 
