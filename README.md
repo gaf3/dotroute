@@ -87,7 +87,7 @@ Maps a hash pattern to actions.
   - "/this/{:^\\d+$}/{:^\\w+$:i}/" matches "#/this/(any number)/(any word, case insensitive)/"
   - "/this/{id:\\d+}" matches "#/this/(any number)" and the number ends up in application.current.path.id
 - patterns - The compile path for matching hashes
-  - "/this/that/" becomes [{exact: "this"},{exact: "that"},{exact: ""}] (Note the last blank, trailing /'s matter!)
+  - "/this/that/" becomes \[{exact: "this"},{exact: "that"},{exact: ""}] (Note the last blank, trailing /'s matter!)
   - "/this/{thing}/" becomes [{exact: "this"},{parameter: "thing"},{exact: ""}]
   - "/this/{:^\\d+$}/{:^\\w+$:i}/" becomes [{exact: "this"},{regex: /^\d+$/},{regex: /^\w+$/i},{exact: ""}]
   - "/this/{id:\\d+}" becomes [{exact: "this"},{parameter: "id",regex: /^\d+$/},{exact: ""}]
