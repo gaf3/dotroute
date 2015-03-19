@@ -71,7 +71,7 @@ MyApp.route("east","/east/","Complex","Doors","side");
   - route - Current route
   - paths - Array of what's in the path. URL: "#/this/that/5/" => paths: ["this","that","5",""]
   - path - Parameters object from path as defined by the route. URL: "#/this/that/5/" => Route: "/this/{thing}/{id}/" => path: {thing: "this",id: 5}
-  - query - Parameters object from the query. Not used for routing. URL: "#/this?that=5" => query: {thing: "5"}
+  - query - Parameters object from the query. Not used for routing. URL: "#/this?that=3" => query: {that: "3"}
 
 ## constructor(target,pane,wait)
 
