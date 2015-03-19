@@ -96,6 +96,28 @@ Maps a hash pattern to actions.
 - enter - Function called with entering the route.  Can be anonymous or part of its controller.
 - exit - Function called with exiting the route.  Can be anonymous or part of its controller. 
 
+## Controller
+
+Collates functionality in an Application mapped to by Routes
+
+- application - The application that created the controller
+- name - The name of the controller used for referencing. Used as application.controllers.{controller name}.
+- it - The Object context to render templates by. it: {stuff: "things"} => template: "I like {{=it.stuff}}" => render: "I like things"
+
+The name 'it' is a matter of convention.  The doT.js template engine uses that as the context name so for clarity we do the same in the controller.  
+
+When rendering a template, you can send any object you want but seeing "this.application.render(this.it)" is clearer.
+
+## Template
+
+Templates aren't objects in an Application.  Just names mapped to functions outputted by doT.template(). Used as application.templates.{template name}.
+
+## Partial
+
+Partials are even less so in an Application.  Just names mapped to strings. Used as application.partials.{partial name}.
+
+See doT.template() for more.
+
 ## constructor(target,pane,wait)
 
 Creates an application.  
