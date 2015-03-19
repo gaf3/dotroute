@@ -72,13 +72,12 @@ Main object in the framework
   - controller - Current controller that was routed to. Can be null if current route lacks a controller.
   - route - Current route
   - paths - Array of what's in the path. 
-
-```URL: "#/this/that/5/" => paths: ["this","that","5",""]```
+```
+URL: "#/this/that/5/" => paths: ["this","that","5",""]
+```
   - path - Parameters object from path as defined by the route. 
-
 ```URL: "#/this/that/5/" => Route: "/this/{thing}/{id}/" => path: {thing: "this",id: 5}```
   - query - Parameters object from the query. Not used for routing. 
-
 ```URL: "#/this?that=3" => query: {that: "3"}```
 
 ## Route
