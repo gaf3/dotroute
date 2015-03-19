@@ -102,7 +102,7 @@ Collates functionality in an Application mapped to by Routes
 
 - application - The application that created the controller
 - name - The name of the controller used for referencing. Used as application.controllers.{controller name}.
-- it - The Object context to render templates by. it: {stuff: "things"} => template: "I like {{=it.stuff}}" => render: "I like things"
+- it - The Object context to render templates by. it: {stuff: "things"} + template: "I like {{=it.stuff}}" => render: "I like things"
 
 The name 'it' is a matter of convention.  The doT.js template engine uses that as the context name so for clarity we do the same in the controller.  
 
@@ -154,6 +154,8 @@ Registers a partial template which can then be used by other templates.
 - name - What to reference by.
 - text - Text to use in the template
 
+Returns the partial's text. This usually isn't needed as partials are typically referenced by name. 
+
 It doesn't compile the partial at this point.  That'll be done when it's used by another template.
 
 ```javascript
@@ -162,10 +164,32 @@ MyApp = new DoTRoute.Application();
 MyApp.partial("Header","<h1>Top Stuff</h1>");
 MyApp.partial("Footer","Bottom Stuff");
 
+// Note the use of partials as the last arg
 MyApp.template("Complex","{{#def.Header}}<p>I came in through the {{=it.door}} door.</p>{{#def.Footer}}",null,MyApp.partials);
 ```
 
-## template(name,text,settings,
+See doT.template() for more.
+
+## template(name,text,custom,data)
+
+Compiles and registers a template which can then be used by routes. 
+- name - What to reference by.
+- text - Text to use in the template, first arg to doT.template().
+- custom - Custom compile settings, second arg to doT.template().
+- data - Compile time rendering data, second arg to doT.template(). Used mainly for partials.
+Returns the template's compile function. This usually isn't needed as templates are typically referenced by name. 
+
+```javascript
+MyApp = new DoTRoute.Application();
+
+MyApp.template("Simple","What's up?");
+   
+MyApp.partial("Header","<h1>Top Stuff</h1>");
+MyApp.partial("Footer","Bottom Stuff");
+
+// Note the use of partials as the last arg
+MyApp.template("Complex","{{#def.Header}}<p>I came in through the {{=it.door}} door.</p>{{#def.Footer}}",null,MyApp.partials);
+```
 
 See doT.template() for more.
 
