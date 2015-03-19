@@ -1,6 +1,121 @@
 # dotroute
 A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.
 
+# General Usage 
+
+```javascript
+MyApp = new DoTRoute.Application();
+
+MyApp.template("Simple","What's up?");
+MyApp.route("base","/","Simple");
+
+// Navigating to #/ (or blank) shows "What's up?"
+
+MyApp.template("Where","I'm at {{=this.application.current.path.place}}.");
+MyApp.route("where","/where/{place}","Where");
+
+// Navigating to #/place/Home shows "I'm at Home."
+
+MyApp.route("location","/location/{at}",null,null,function() {
+  alert("Switching it up!");
+  this.application.go("where",this.application.current.path.at);
+});
+
+// Navigating to #/location/Work pops up "Switcing it up!" and then shows "I'm at Work."
+
+MyApp.partial("Header","<h1>Top Stuff</h1>");
+MyApp.partial("Footer","Bottom Stuff");
+
+MyApp.template("Complex","{{#def.Header}}<p>I came in through the {{=it.door}} door.</p>{{#def.Footer}}",null,MyApp.partials);
+
+MyApp.controller("Doors",null,{
+  front: function() {
+    this.it = {door: "front"};
+    this.application.render(this.it);
+  },
+  back: function() {
+    this.it = {door: "back"};
+    this.application.render(this.it);
+  },
+  side: function() {
+    this.it = {door: "side"};
+    this.application.render(this.it);
+  },
+  check: function() {
+    alert("Make sure you check the " + this.it.door + " door.");
+  }
+});
+
+MyApp.route("south","/south/","Complex","Doors","front");
+MyApp.route("north","/north/","Complex","Doors","back","check");
+MyApp.route("east","/east/","Complex","Doors","side");
+
+// Navigating to #/south/ shows "<h1>Top Stuff</h1><p>I came in through the front door.</p>Bottom Stuff"
+// Navigating then to #/north/ shows "<h1>Top Stuff</h1><p>I came in through the back door.</p>Bottom Stuff"
+// Navigating then to #/east/ pops up "Make sure you check the back door." and shows "<h1>Top Stuff</h1><p>I came in through the side door.</p>Bottom Stuff"
+```
+
+# Full Listing
+
+## Application
+
+- this.target - jQuery target for rendering. Used as $(this.target)
+- this.pane - Window for rendering.  Used as $(this.target,this.pane.document)
+- this.wait - Whether to wait before starting app.  Used in the unit tests.
+
+## constructor(target,pane,wait)
+
+Creates an application.  
+
+- target(='body') - jQuery target for rendering. Assigned to this.target
+- pane(=window) - Window for rendering. Assigned to this.pane
+- wait(=false) - Whether to wait before starting app.  Used in the unit tests.
+
+```javascript
+// This is the most typical usage
+MyApp = new DoTRoute.Application();
+
+// This is how you'd open a test app
+testing = window.open("", "_blank", "width=200, height=100");
+testing.document.write("<span></span>");
+MyTestApp = new DoTRoute.Application("span",testing,true);
+```
+
+## start() 
+
+Adds events listeners hashchange  Normally called by default as part of the contructor
+
+```javascript
+testing = window.open("", "_blank", "width=200, height=100");
+testing.document.write("<span></span>");
+MyTestApp = new DoTRoute.Application("span",testing,true);
+// Perform some other setup
+MyTestApp.start();
+```
+
+## partial(name,text)
+
+Registers a partial template which can then be used by other templates. 
+- name - What to reference by.
+- text - Text to use in the template
+
+It doesn't compile the partial at this point.  That'll be done when it's used by another template.
+
+```javascript
+MyApp = new DoTRoute.Application();
+
+MyApp.partial("Header","<h1>Top Stuff</h1>");
+MyApp.partial("Footer","Bottom Stuff");
+
+MyApp.template("Complex","{{#def.Header}}<p>I came in through the {{=it.door}} door.</p>{{#def.Footer}}",null,MyApp.partials);
+```
+
+## template(name,text,settings,
+
+See doT.template() for more.
+
+# Reasons for Creating
+
 ## Issues
 
 I've been working with Ember.js and Angular.js and realized at the core my goals differ from their authors' goals. 
