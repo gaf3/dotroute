@@ -71,9 +71,12 @@ Main object in the framework
 - current - Object of what's current. 
   - controller - Current controller that was routed to. Can be null if current route lacks a controller.
   - route - Current route
-  - paths - Array of what's in the path. URL: "#/this/that/5/" => paths: ["this","that","5",""]
-  - path - Parameters object from path as defined by the route. URL: "#/this/that/5/" => Route: "/this/{thing}/{id}/" => path: {thing: "this",id: 5}
-  - query - Parameters object from the query. Not used for routing. URL: "#/this?that=3" => query: {that: "3"}
+  - paths - Array of what's in the path. 
+  ```URL: "#/this/that/5/" => paths: ["this","that","5",""]```
+  - path - Parameters object from path as defined by the route. 
+  ```URL: "#/this/that/5/" => Route: "/this/{thing}/{id}/" => path: {thing: "this",id: 5}```
+  - query - Parameters object from the query. Not used for routing. 
+```URL: "#/this?that=3" => query: {that: "3"}```
 
 ## Route
 
@@ -82,7 +85,7 @@ Maps a hash pattern to actions.
 - application - The application that created the route
 - name - The name of the route used for referencing. Used as application.routes.{route name}
 - path - The path in text for matching hashes. Can have parameters and/or regular expressions.
-  - "/this/that/" matches "#/this/this/"
+  - "/this/that/" matches "#/this/this/" 
   - "/this/{thing}/" matches "#/this/*/" and whatever's in * ends up in application.current.path.thing
   - "/this/{:^\\d+$}/{:^\\w+$:i}/" matches "#/this/(any number)/(any word, case insensitive)/"
   - "/this/{id:\\d+}" matches "#/this/(any number)" and the number ends up in application.current.path.id
