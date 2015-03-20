@@ -146,7 +146,9 @@ QUnit.test("controller", function(assert) {
     assert.equal(controller.application,application);
     assert.equal(controller.name,"Controlly");
 
-    var controller = application.controller("Controlly",null,{
+    controller.extra = "fun";
+
+    var controller = application.controller("Controlly",controller,{
         start: function (value) {
             this.it.begin = value;
         },
@@ -160,6 +162,7 @@ QUnit.test("controller", function(assert) {
 
     assert.equal(controller.application,application);
     assert.equal(controller.name,"Controlly");
+    assert.equal(controller.extra,"fun");
     assert.deepEqual(controller.it,{begin: "up", end: "down"});
 
     var controller = application.controller("Extendy","Controlly",{
@@ -173,6 +176,7 @@ QUnit.test("controller", function(assert) {
 
     assert.equal(controller.application,application);
     assert.equal(controller.name,"Extendy");
+    assert.equal(controller.extra,"fun");
     assert.deepEqual(controller.it,{begin: "sideways", end: "down"});
 
 });

@@ -144,10 +144,12 @@ DoTRoute.Application.prototype.template = function(name,text,custom,data) {
 
 DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
+    base = typeof(base) == "string" && base in this.controllers ? this.controllers[base] : base;
+
     var controller = new DoTRoute.Controller(this,name);
 
     if (base) {
-        controller = $.extend(this.controllers[base],controller);
+        controller = $.extend(base,controller);
     }
 
     this.controllers[name] = $.extend(controller,actions);
