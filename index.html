@@ -39,66 +39,70 @@
 <h1>
 <a id="general-usage" class="anchor" href="#general-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>General Usage</h1>
 
-<div class="highlight highlight-javascript"><pre>MyApp <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-en">DoTRoute.Application</span>();
+<div class="highlight highlight-javascript">
+<pre>
+MyApp = new DoTRoute.Application();
 
-MyApp.template(<span class="pl-s"><span class="pl-pds">"</span>Simple<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>What's up?<span class="pl-pds">"</span></span>);
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>base<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Simple<span class="pl-pds">"</span></span>);
+MyApp.template("Simple","What's up?");
+MyApp.route("base","/","Simple");
 
-<span class="pl-c">// Navigating to #/ (or blank) shows "What's up?"</span>
+// Navigating to #/ (or blank) shows "What's up?"
 
-MyApp.template(<span class="pl-s"><span class="pl-pds">"</span>Where<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>I'm at {{=this.application.current.path.place}}.<span class="pl-pds">"</span></span>);
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>where<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/where/{place}<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Where<span class="pl-pds">"</span></span>);
+MyApp.template("Where","I'm at {{=MyApp.current.path.place}}.");
+MyApp.route("where","/where/{place}","Where");
 
-<span class="pl-c">// Navigating to #/place/Home shows "I'm at Home."</span>
+// Navigating to #/place/Home shows "I'm at Home."
 
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>location<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/location/{at}<span class="pl-pds">"</span></span>,<span class="pl-c1">null</span>,<span class="pl-c1">null</span>,<span class="pl-k">function</span>() {
-  <span class="pl-c1">alert</span>(<span class="pl-s"><span class="pl-pds">"</span>Switching it up!<span class="pl-pds">"</span></span>);
-  <span class="pl-v">this</span>.application.<span class="pl-c1">go</span>(<span class="pl-s"><span class="pl-pds">"</span>where<span class="pl-pds">"</span></span>,<span class="pl-v">this</span>.application.<span class="pl-c1">current</span>.path.at);
+MyApp.route("location","/location/{at}",null,null,function() {
+  alert("Switching it up!");
+  this.application.go("where",this.application.current.path.at);
 });
 
-<span class="pl-c">// Navigating to #/location/Work pops up "Switcing it up!" </span>
-<span class="pl-c">// and then shows "I'm at Work."</span>
+// Navigating to #/location/Work pops up "Switcing it up!" 
+// and then shows "I'm at Work."
 
-MyApp.partial(<span class="pl-s"><span class="pl-pds">"</span>Header<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>&lt;h1&gt;Top Stuff&lt;/h1&gt;<span class="pl-pds">"</span></span>);
-MyApp.partial(<span class="pl-s"><span class="pl-pds">"</span>Footer<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Bottom Stuff<span class="pl-pds">"</span></span>);
+MyApp.partial("Header","<h1>Top Stuff</h1>");
+MyApp.partial("Footer","Bottom Stuff");
 
-<span class="pl-k">var</span> complex <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>{{#def.Header}}<span class="pl-pds">"</span></span> <span class="pl-k">+</span>
-              <span class="pl-s"><span class="pl-pds">"</span>&lt;p&gt;I came in through the {{=it.door}} door.&lt;/p&gt;<span class="pl-pds">"</span></span> <span class="pl-k">+</span> 
-              <span class="pl-s"><span class="pl-pds">"</span>{{#def.Footer}}<span class="pl-pds">"</span></span>;
+var complex = "{{#def.Header}}\n" +
+              "<p>I came in through the {{=it.door}} door.</p>\n" + 
+              "{{#def.Footer}}";
 
-MyApp.template(<span class="pl-s"><span class="pl-pds">"</span>Complex<span class="pl-pds">"</span></span>,complex,<span class="pl-c1">null</span>,MyApp.partials);
+MyApp.template("Complex",complex,null,MyApp.partials);
 
-MyApp.controller(<span class="pl-s"><span class="pl-pds">"</span>Doors<span class="pl-pds">"</span></span>,<span class="pl-c1">null</span>,{
-  <span class="pl-en">front</span>: <span class="pl-k">function</span>() {
-    <span class="pl-v">this</span>.it <span class="pl-k">=</span> {door<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>front<span class="pl-pds">"</span></span>};
-    <span class="pl-v">this</span>.application.render(<span class="pl-v">this</span>.it);
+MyApp.controller("Doors",null,{
+  front: function() {
+    this.it = {door: "front"};
+    this.application.render(this.it);
   },
-  <span class="pl-en">back</span>: <span class="pl-k">function</span>() {
-    <span class="pl-v">this</span>.it <span class="pl-k">=</span> {door<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>back<span class="pl-pds">"</span></span>};
-    <span class="pl-v">this</span>.application.render(<span class="pl-v">this</span>.it);
+  back: function() {
+    this.it = {door: "back"};
+    this.application.render(this.it);
   },
-  <span class="pl-en">side</span>: <span class="pl-k">function</span>() {
-    <span class="pl-v">this</span>.it <span class="pl-k">=</span> {door<span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>side<span class="pl-pds">"</span></span>};
-    <span class="pl-v">this</span>.application.render(<span class="pl-v">this</span>.it);
+  side: function() {
+    this.it = {door: "side"};
+    this.application.render(this.it);
   },
-  <span class="pl-en">check</span>: <span class="pl-k">function</span>() {
-    <span class="pl-c1">alert</span>(<span class="pl-s"><span class="pl-pds">"</span>Make sure you check the <span class="pl-pds">"</span></span> <span class="pl-k">+</span> <span class="pl-v">this</span>.it.door <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">"</span> door.<span class="pl-pds">"</span></span>);
+  check: function() {
+    alert("Make sure you check the " + this.it.door + " door.");
   }
 });
 
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>south<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/south/<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Complex<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Doors<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>front<span class="pl-pds">"</span></span>);
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>north<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/north/<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Complex<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Doors<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>back<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>check<span class="pl-pds">"</span></span>);
-MyApp.route(<span class="pl-s"><span class="pl-pds">"</span>east<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>/east/<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Complex<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>Doors<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>side<span class="pl-pds">"</span></span>);
+MyApp.route("south","/south/","Complex","Doors","front");
+MyApp.route("north","/north/","Complex","Doors","back","check");
+MyApp.route("east","/east/","Complex","Doors","side");
 
-<span class="pl-c">// Navigating to #/south/ shows "&lt;h1&gt;Top Stuff&lt;/h1&gt;&lt;p&gt;I came in </span>
-<span class="pl-c">// through the front door.&lt;/p&gt;Bottom Stuff"</span>
+// Navigating to #/south/ shows "<h1>Top Stuff</h1><p>I came in 
+// through the front door.</p>Bottom Stuff"
 
-<span class="pl-c">// Navigating then to #/north/ shows "&lt;h1&gt;Top Stuff&lt;/h1&gt;&lt;p&gt;I </span>
-<span class="pl-c">// came in through the back door.&lt;/p&gt;Bottom Stuff"</span>
+// Navigating then to #/north/ shows "<h1>Top Stuff</h1><p>I 
+// came in through the back door.</p>Bottom Stuff"
 
-<span class="pl-c">// Navigating then to #/east/ pops up "Make sure you check the </span>
-<span class="pl-c">// back door." and shows "&lt;h1&gt;Top Stuff&lt;/h1&gt;&lt;p&gt;I came in through </span>
-<span class="pl-c">// the side door.&lt;/p&gt;Bottom Stuff"</span></pre></div>
+// Navigating then to #/east/ pops up "Make sure you check the 
+// back door." and shows "<h1>Top Stuff</h1><p>I came in through 
+// the side door.</p>Bottom Stuff"
+
+</pre></div>
 
 <p><a href="https://github.com/gaf3/dotroute/wiki">Full Documentation</a></p>
       </section>
