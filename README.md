@@ -12,7 +12,7 @@ MyApp.route("base","/","Simple");
 
 // Navigating to #/ (or blank) shows "What's up?"
 
-MyApp.template("Where","I'm at {{=this.application.current.path.place}}.");
+MyApp.template("Where","I'm at {{=MyApp.current.path.place}}.");
 MyApp.route("where","/where/{place}","Where");
 
 // Navigating to #/place/Home shows "I'm at Home."
@@ -28,8 +28,8 @@ MyApp.route("location","/location/{at}",null,null,function() {
 MyApp.partial("Header","<h1>Top Stuff</h1>");
 MyApp.partial("Footer","Bottom Stuff");
 
-var complex = "{{#def.Header}}" +
-              "<p>I came in through the {{=it.door}} door.</p>" + 
+var complex = "{{#def.Header}}\n" +
+              "<p>I came in through the {{=it.door}} door.</p>\n" + 
               "{{#def.Footer}}";
 
 MyApp.template("Complex",complex,null,MyApp.partials);
