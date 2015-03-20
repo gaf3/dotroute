@@ -112,6 +112,7 @@ DoTRoute.Application.prototype.start = function() {
 
     $(this.pane).on('hashchange',$.proxy(this.router,this));  
     $(this.pane).on('load',$.proxy(this.router,this));  
+    $(this.pane).on('unload',$.proxy(this.last,this));  
 
 }
 
@@ -277,6 +278,16 @@ DoTRoute.Application.prototype.match = function(path) {
 
 }
 
+// exit - check last route 
+
+DoTRoute.Application.prototype.last = function() {
+
+    if (this.current.route) {
+        this.current.route.exit(this);
+    }
+
+}
+
 // router - match route and call
 
 DoTRoute.Application.prototype.router = function() {
@@ -284,9 +295,7 @@ DoTRoute.Application.prototype.router = function() {
     var hash = this.pane.location.hash;
     var path = (hash.slice(1) || "/");
 
-    if (this.current.route) {
-        this.current.route.exit(this);
-    }
+    this.last();
 
     this.current = {
         paths: null,
