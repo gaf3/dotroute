@@ -63,8 +63,8 @@ MyApp.route("east","/east/","Complex","Doors","side");
 // came in through the back door.</p>Bottom Stuff"
 
 // Navigating then to #/east/ pops up "Make sure you check the 
-back door." and shows "<h1>Top Stuff</h1><p>I came in through 
-the side door.</p>Bottom Stuff"
+// back door." and shows "<h1>Top Stuff</h1><p>I came in through 
+// the side door.</p>Bottom Stuff"
 ```
 
 [Full Documentation](https://github.com/gaf3/dotroute/wiki)
