@@ -9,9 +9,10 @@
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
     <title>doTRoute.js</title>
+    <script src="javascripts/jquery.js"></script>
   </head>
 
-  <body>
+  <body OnLoad="load()">
 
     <!-- HEADER -->
     <div id="header_wrap" class="outer">
@@ -34,12 +35,19 @@
         <h1>
         <a id="dotroutejs" class="anchor" href="#dotroutejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>doTRoute.js</h1>
         <p>A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.</p>
+        <h2>Examples</h2>
+        <textarea id="source" cols=80 rows=20 readonly></textarea>
+        <h2>Try it!</h2>
         <ul>
-            <li><a OnClick="load('general')">General</a></li>
-            <li>Templates</li>
-            <li>Partials</li>
+            <li><a href="general.html#/" target="example">#/</a></li>
+            <li><a href="general.html#/where/Home" target="example">#/where/Home</a></li>
+            <li><a href="general.html#/location/Work" target="example">#/location/Work</a></li>
+            <li><a href="general.html#/south/" target="example">#/south/</a></li>
+            <li><a href="general.html#/north/" target="example">#/north/</a></li>
+            <li><a href="general.html#/east/" target="example">#/east/</a></li>
         </ul>
-        <textarea cols=80 rows=10></textarea>
+        <h2>Output</h2>
+        <iframe name="example" src="general.html"></iframe> 
       </section>
     </div>
     <!-- FOOTER  -->
@@ -50,8 +58,8 @@
       </footer>
     </div>
     <script>
-        function load(example) {
-            alert(example);
+        function load() {
+            $("#source").val($.ajax({url: "javascripts/general.js", async: false}).responseText);
         }
     </script>
   </body>
