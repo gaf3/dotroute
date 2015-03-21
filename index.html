@@ -6,10 +6,12 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="description" content="doTRoute.js : A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/jquery.snippet.css"/>
 
     <title>doTRoute.js</title>
     <script src="javascripts/jquery.js"></script>
+    <script src="javascripts/jquery.snippet.js"></script>
   </head>
 
   <body OnLoad="load()">
@@ -36,7 +38,7 @@
         <a id="dotroutejs" class="anchor" href="#dotroutejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>doTRoute.js</h1>
         <p>A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.</p>
         <h2>Examples</h2>
-        <textarea id="source" cols=80 rows=20 readonly></textarea>
+        <pre id="source"></pre>
         <h2>Try it!</h2>
         <ul>
             <li><a href="general.html#/" target="example">#/</a></li>
@@ -50,6 +52,7 @@
         <iframe name="example" src="general.html"></iframe> 
       </section>
     </div>
+
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
@@ -59,7 +62,8 @@
     </div>
     <script>
         function load() {
-            $("#source").val($.ajax({url: "javascripts/general.js", async: false}).responseText);
+            $("#source").text($.ajax({url: "javascripts/general.js", async: false}).responseText);
+            $("#source").snippet("javascript",{style:"vim"});
         }
     </script>
   </body>
