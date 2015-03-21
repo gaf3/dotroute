@@ -1,70 +1,57 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv="X-UA-Compatible" content="chrome=1">
+        <meta name="description" content="doTRoute.js : A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.">
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="doTRoute.js : A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.">
+        <title>doTRoute.js</title>
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css"/>
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/jquery.snippet.css"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css"/>
+        <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/jquery.snippet.css"/>
 
-    <title>doTRoute.js</title>
-    <script src="javascripts/jquery.js"></script>
-    <script src="javascripts/jquery.snippet.js"></script>
-  </head>
+        <script src="javascripts/jquery.js"></script>
+        <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script src="javascripts/jquery.snippet.js"></script>
+        <script src="javascripts/doT.js"></script>
+        <script src="javascripts/doTRoute.js"></script>
+        <script>
 
-  <body OnLoad="load()">
+// Now normally you'd put this in a separate files or several (I've been 
+// doing one per controller, with all the templates and routes contained)
+// but I figured it'd be nice to view source and see everything.
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/gaf3/dotroute">View on GitHub</a>
+GitHubIO = new DoTRoute.Application();
 
-          <h1 id="project_title">doTRoute.js</h1>
-          <h2 id="project_tagline">A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.</h2>
+GitHubIO.controller("Tutorial",null,{
+    source: function() {
+        $("#example",$('#output')[0].contentWindow.document).text(this.it.source);
+    },
+    home: function() {
+        this.it = {
+            source: $.ajax({url: "javascripts/usage.js", async: false}).responseText,
+            links: JSON.parse($.ajax({url: "javascripts/usage.json", async: false}).responseText)
+        };
+        this.application.render(this.it);
+        $("#source").snippet("javascript",{style:"vim"});
+        $('#output').load($.proxy(this.source,this));
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/gaf3/dotroute/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/gaf3/dotroute/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
+    }
+});
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h1>
-        <a id="dotroutejs" class="anchor" href="#dotroutejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>doTRoute.js</h1>
-        <p>A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.</p>
-        <h2>Examples</h2>
-        <pre id="source"></pre>
-        <h2>Try it!</h2>
-        <ul>
-            <li><a href="general.html#/" target="example">#/</a></li>
-            <li><a href="general.html#/where/Home" target="example">#/where/Home</a></li>
-            <li><a href="general.html#/location/Work" target="example">#/location/Work</a></li>
-            <li><a href="general.html#/south/" target="example">#/south/</a></li>
-            <li><a href="general.html#/north/" target="example">#/north/</a></li>
-            <li><a href="general.html#/east/" target="example">#/east/</a></li>
-        </ul>
-        <h2>Output</h2>
-        <iframe name="example" src="general.html"></iframe> 
-      </section>
-    </div>
+// Setup a header and footer to use everywhere
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">doTRoute.js maintained by <a href="https://github.com/gaf3">gaf3</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-    <script>
-        function load() {
-            $("#source").text($.ajax({url: "javascripts/general.js", async: false}).responseText);
-            $("#source").snippet("javascript",{style:"vim"});
-        }
-    </script>
-  </body>
+GitHubIO.partial("Header",$.ajax({url: "header.html", async: false}).responseText);
+GitHubIO.partial("Footer",$.ajax({url: "footer.html", async: false}).responseText);
+
+// Set up the home page
+
+GitHubIO.template("Home",$.ajax({url: "home.html", async: false}).responseText,null,GitHubIO.partials);
+
+GitHubIO.route("home","/","Home","Tutorial","home");
+
+        </script>
+    </head>
+    <body>
+    </body>
 </html>

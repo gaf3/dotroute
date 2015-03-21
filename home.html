@@ -1,0 +1,17 @@
+{{#def.Header}}
+<div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+        <h1><a id="dotroutejs" class="anchor" href="#dotroutejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>doTRoute.js</h1>
+        <h2>Examples</h2>
+        <pre id="source">{{!it.source}}</pre>
+        <h2>Try it!</h2>
+        <ul>
+            {{~it.links :link}}
+            <li><a OnClick="$('#output')[0].contentWindow.location.hash = '{{=link}}';">{{=link}}</a></li>
+            {{~}}
+        </ul>
+        <h2>Output</h2>
+        <iframe id="output" src="output.html"></iframe> 
+    </section>
+</div>
+{{#def.Footer}}
