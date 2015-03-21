@@ -7,7 +7,7 @@
         <h2>Try it!</h2>
         <ul>
             {{~it.links :link}}
-            <li><a OnClick="$('#output')[0].contentWindow.location.hash = '{{=link}}';">{{=link}}</a></li>
+            <li><a OnClick="GitHubIO.controllers.Tutorial.demo('{{=link}}');">{{=link}}</a></li>
             {{~}}
         </ul>
         <h2>Output</h2>

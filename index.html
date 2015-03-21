@@ -25,7 +25,8 @@ GitHubIO = new DoTRoute.Application();
 
 GitHubIO.controller("Tutorial",null,{
     source: function() {
-        $("#example",$('#output')[0].contentWindow.document).text(this.it.source);
+        var clean = this.it.source.replace("DoTRoute.Application();","DoTRoute.Application(null,null,true);")
+        $("#example",$('#output')[0].contentWindow.document).text(clean);
     },
     home: function() {
         this.it = {
@@ -36,6 +37,10 @@ GitHubIO.controller("Tutorial",null,{
         $("#source").snippet("javascript",{style:"vim"});
         $('#output').load($.proxy(this.source,this));
 
+    },
+    demo: function(link) {
+        $('#output')[0].contentWindow.location.hash = link; 
+        $('#output')[0].contentWindow.MyApp.router();
     }
 });
 
