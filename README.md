@@ -15,7 +15,7 @@ MyApp.route("base","/","Simple");
 MyApp.template("Where","I'm at {{=MyApp.current.path.place}}.");
 MyApp.route("where","/where/{place}","Where");
 
-// Navigating to #/place/Home shows "I'm at Home."
+// Navigating to #/where/Home shows "I'm at Home."
 
 MyApp.route("location","/location/{at}",null,null,function() {
   alert("Switching it up!");
