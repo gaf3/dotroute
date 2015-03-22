@@ -1,10 +1,12 @@
 {{#def.Header}}
 <div id="main_content_wrap" class="outer">
     <section id="main_content" class="inner">
-        <h1><a id="dotroutejs" class="anchor" href="#dotroutejs" aria-hidden="true"><span class="octicon octicon-link"></span></a>doTRoute.js</h1>
-        <h2>Examples</h2>
+        <p>
+            doTRoute.js isn't meant to be fancy or all encompassing.  It's for when you have an API that does most of the work and you need something to make the pretty.  You should use it to route displays as if they were separate web pages and from there just use regular ass code&trade;. 
+        </p>
+        <h2>Example</h2>
         <pre id="source">{{!it.source}}</pre>
-        <h2>Try it!</h2>
+        <h2>Give it a Shot</h2>
         <ul>
             {{~it.links :link}}
             <li><a OnClick="GitHubIO.controllers.Tutorial.demo('{{=link}}');">{{=link}}</a></li>
@@ -12,6 +14,62 @@
         </ul>
         <h2>Output</h2>
         <iframe id="output" src="output.html"></iframe> 
+        <h2>Documentation</h2>
+        <p>It's all the <a href="https://github.com/gaf3/dotroute/wiki">Wiki</a>.
+        <p>I also plan to work on a cookbook of common needs and solutions.  Feel free to message me with your needs.</p>
+        <h2>Suggestions</h2>
+        <p>
+            Included are some suggested naming conventions.  These are just suggestions based on what's worked well so far (keep in mind, at the time of this writing the framework is 4 days old).  The framework doesn't depend on any sort of naming convention for automagic or anything.
+        </p>
+        <p>Along those lines, please feel free to suggest any changes.  Not a JavaScript expert in any sense. </p>
+        <h2>Reasons for Creating</h2>
+        <h3>Issues</h3>
+        <p>I've been working with Ember.js and Angular.js and realized at the core, my goals differ from their authors' goals.</p>
+        <h4>Explicit/Implicit</h4>
+        <p>
+            Not a slight against Ember.js and Angular.js specifically, I've found many frameworks do a lot of automagic under the hood.  While this pattern is great for getting simple applications up and running quickly, it often makes complex applications harder, especially if the framework's core philosophy didn't anticipate what your application is trying to do. 
+        </p>
+        <p>
+            I prefer to write more code if it's easier to read and understand, else you're merely trading initial dev time (fixed cost) later maintenance time (variable cost), and that just doens't add up.
+        </p>
+        <h4>Data Binding</h4>
+        <p>
+            I neither need nor want data binding.  In the example Todo app for Ember, the ability to change a title multiple places simultaneously, while neato, is something I can't fathom ever needing.  I feel many of emberizing/angularizing hoops I'm having to jump through revolve around just that.  So for my needs, it's a high cost with little gain.
+        </p>
+        <h4>Logicless Templates</h4>
+        <p>
+            All templates have logic, that's what makes them a template and not a static file.  When you use a templating system that's called "logicless," it means you move the exact same logic you'd put in a template to some other part of the code.  You see this most common with simple boolean expressions have to be set as a variable in the model only to be used in if statements somewhere else (which is logic btw). This separates what's happening from where it's used and creates more code that is harder to understand.  
+        </p>
+        <h4>The _____ Way</h4>
+        <p>
+            This seems to be a rising problem with frameworks in general.  Often they have their own version of functionality that are less encompassing than what's already there.  This often results in constantly having to do things the _____ way, and unless the authors anticipated your application's goals, you'll end up writing klugey looking code, or worse, be blocked.
+        </p>
+        <h3>Goals</h3>
+        <h4>Play Nice</h4>
+        <p>
+            I find jQuery very useful, doT.js looks promising, and thought routing shouldn't be to tough.  I wanted all these pieces to work together and use what they've done vs. build on it.  I want to make it easy to call a route function from an OnClick tag, do something in a controller from outside it, and it all just work.
+        </p>
+        <h4>Beyond CRUD</h4>
+        <p>
+            For my applications, I'm doing a lot more than modifying a single model at a time.  Most of what I do is verb based, not noun based.  I never even planned to even stick with MVC strictly.
+        </p>
+        <h4>Native Asynchronicity</h4>
+        <p>
+            I want asynchronous calls to work the way the good JavaScript Lord intended.  A route start can make an async calls that'll later call the template render command or something along those lines.
+        </p>
+        <h4>Keep It Simple, Shithead</h4>
+        <p>
+            All and all, I didn't want to pack in a bunch of automagic features that makes your first app a few lines of code.  It's not the first day of a project I care about.  It's all the other days. I wanted to take patterns that we'd normally do over and over and abstract them with easy to use functionality.
+        </p>
+        <p>
+            Yeah yeah yeah.  Saying the word shithead isn't exactly playing nice.  But whatevs. 
+        </p>
+        <h2>License</h2>
+        <p>Let's go with MIT.  It's what all the kids are doing.
+        <h2>Reference</h2>
+        <p>Make sure you check out <a href="http://olado.github.io/doT/index.html">doT.js</a> for how to do templating.</p>
+        <p>Also give <a href="http://codeofrob.com/entries/you-have-ruined-javascript.html">you have ruined javascript</a> a look see which kinda inspired me to write this.</p>
+        <p>And definitely check out <a href="http://programming-motherfucker.com/">Programming, Motherfucker.</a> because it's awesome. </p>
     </section>
 </div>
 {{#def.Footer}}
