@@ -36,6 +36,7 @@ GitHubIO.controller("Tutorial",null,{
         this.application.render(this.it);
         $("#source").snippet("javascript",{style:"vim"});
         $('#output').load($.proxy(this.source,this));
+        $("li.nking").css({"cursor":"pointer"});
 
     },
     demo: function(link) {
