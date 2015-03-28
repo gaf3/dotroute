@@ -1,6 +1,6 @@
 # doTRoute.js
 
-A simple, flexible javascript framwork using jQuery, doT.js, and a custom router.
+A simple, flexible javascript framework using jQuery, doT.js, and a custom router.
 
 [General Overview](http://gaf3.github.io/dotroute/)
 
