@@ -108,6 +108,7 @@ QUnit.test("update", function(assert) {
     todos_api.update(2,"Other one","complete");
     assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
     assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "complete"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 2, text: "Other one", status: "complete"});
 
     todos_api.update(1,null,"complete");
     assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "complete"});
@@ -139,6 +140,7 @@ QUnit.test("destroy", function(assert) {
     todos_api.destroy(2);
     assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
     assert.deepEqual(todos_api.todos[1],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 3, text: "Other one", status: "incomplete"});
 
     todos_api.destroy(1);
     assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
@@ -166,6 +168,7 @@ QUnit.test("purge", function(assert) {
 
     todos_api.purge();
     assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[0],{id: 3, text: "Other one", status: "incomplete"});
 
     todos_api.purge();
     assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
