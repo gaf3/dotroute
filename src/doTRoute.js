@@ -242,59 +242,6 @@ DoTRoute.Application.prototype.route = function(name,path,template,controller,en
 
 }
 
-// link - Link to a route
-
-DoTRoute.Application.prototype.link = function(route) {
-
-    // Lookup by string.  Bork if not found.
-
-    if (typeof(route) == "string") {
-
-        if (!(route in this.routes)) {
-            throw new DoTRoute.Exception("Can't find route: " + route);
-        }
-
-        route = this.routes[route];
-    }
-
-    // Go through all the paths in the route.  If it's an exact
-    // match pattern, use that exactly.  Else use the next argument
-    // sent.
-
-    var paths = [];
-    var argument = 1;
-    for (var index = 0; index < route.patterns.length; index++) {
-        paths.push("exact" in route.patterns[index] ? route.patterns[index].exact : arguments[argument++]);
-    }
-
-    // Return the hash
-
-    return "#/" + paths.join("/");
-
-}
-
-// go - Jump to a route
-
-DoTRoute.Application.prototype.go = function(route) {
-
-    // Use the route if it's already a hash, else call link
-    // and use that
-
-    this.pane.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
-    this.router();
-
-}
-
-// refresh - Just reload the route
-
-DoTRoute.Application.prototype.refresh = function() {
-
-    // Great talk
-
-    this.router();
-
-}
-
 // match - Find a matching route
 
 DoTRoute.Application.prototype.match = function(path) {
@@ -421,6 +368,98 @@ DoTRoute.Application.prototype.router = function() {
     // Call the current route's enter function
 
     this.current.route.enter(this);
+
+}
+
+// link - Link to a route
+
+DoTRoute.Application.prototype.link = function(route) {
+
+    // Lookup by string.  Bork if not found.
+
+    if (typeof(route) == "string") {
+
+        if (!(route in this.routes)) {
+            throw new DoTRoute.Exception("Can't find route: " + route);
+        }
+
+        route = this.routes[route];
+    }
+
+    // Go through all the paths in the route.  If it's an exact
+    // match pattern, use that exactly.  Else use the next argument
+    // sent.
+
+    var paths = [];
+    var argument = 1;
+    for (var index = 0; index < route.patterns.length; index++) {
+        paths.push("exact" in route.patterns[index] ? route.patterns[index].exact : arguments[argument++]);
+    }
+
+    // Return the hash
+
+    return "#/" + paths.join("/");
+
+}
+
+// go - Jump to a route
+
+DoTRoute.Application.prototype.go = function(route) {
+
+    // Use the route if it's already a hash, else call link
+    // and use that
+
+    this.pane.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
+    this.router();
+
+}
+
+// at - Determine if at a route, including parameters
+
+DoTRoute.Application.prototype.at = function(route) {
+
+    // If we're not at a route, then nope
+
+    if (!this.current.route) {
+        return false;
+    }
+
+    // Lookup by string.
+
+    if (typeof(route) == "string" && route in this.routes) {
+        route = this.routes[route];
+    }
+
+    // Return if not matching current
+
+    if (route != this.current.route) {
+        return false;
+    }
+
+    // Go through all the paths in the route.  Check wildcards if sent. 
+
+    var argument = 0;
+    for (var index = 0; index < route.patterns.length; index++) {
+        if (!("exact" in route.patterns[index])) {
+            if (arguments[++argument] != null && arguments[argument] != this.current.paths[index]) {
+                return false;
+            }
+        }
+    }
+
+    // If we're here, everything lined up
+
+    return true;
+
+}
+
+// refresh - Just reload the route
+
+DoTRoute.Application.prototype.refresh = function() {
+
+    // Great talk
+
+    this.router();
 
 }
 

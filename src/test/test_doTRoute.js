@@ -369,6 +369,34 @@ QUnit.test("go", function(assert) {
 
 });
 
+QUnit.test("at", function(assert) {
+
+    this.applicationWindow = window.open("", "_blank", "width=200, height=100");
+    this.applicationWindow.document.write("<span></span>");
+
+    var application = new DoTRoute.Application("span",this.applicationWindow,true);
+    application.template("Things","<p>things</p>");
+
+    var route = application.route("people","/people/","Things");
+    application.route("stuff","/stuff/{:\\d+}/{:\\d+}","Things");
+
+    assert.equal(application.at("people"),false);
+
+    application.go(route);
+    assert.equal(application.at(route),true);
+    assert.equal(application.at("people"),true);
+    assert.equal(application.at("stuff"),false);
+
+    application.go("stuff",1,2);
+    assert.equal(application.at("stuff"),true);
+    assert.equal(application.at("stuff",1),true);
+    assert.equal(application.at("stuff",2),false);
+    assert.equal(application.at("stuff",1,2),true);
+    assert.equal(application.at("stuff",null,2),true);
+    assert.equal(application.at("stuff",null,1),false);
+
+});
+
 QUnit.test("refresh", function(assert) {
 
     this.applicationWindow = window.open("", "_blank", "width=200, height=100");
