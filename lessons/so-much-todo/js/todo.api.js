@@ -34,7 +34,7 @@ todoAPI.prototype.find = function(id) {
 todoAPI.prototype.list = function(status) {
     var list = [];
     for (var index = 0; index < this.todos.length; index++) {
-        if (status == null || status == this.todos[index].status) {
+        if (!status || status == this.todos[index].status) {
             list.push(this.todos[index]);
         }
     }
@@ -61,16 +61,16 @@ todoAPI.prototype.create = function(text) {
 }
 
 todoAPI.prototype.update = function(id,text,status) { 
-    if (id == null) {
+    if (!id) {
         for (var index = 0; index < this.todos.length; index++) {
             this.update(this.todos[index].id,text,status);
         }
     } else {
         var index = this.find(id);
-        if (text != null) {
+        if (text) {
             this.todos[index].text = text;
         }
-        if (status != null) {
+        if (status) {
             this.todos[index].status = status;
         }
         this.save();
