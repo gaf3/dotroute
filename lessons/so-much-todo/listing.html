@@ -5,15 +5,8 @@
     </header>
     <section id="main">
         <ul id="todo-list">
-            {{~it.todos :todo:index}}
+            {{~it.todos :todo}}
             <li {{? todo.status == "completed" }}class="completed"{{?}}>
-                <div class="editing" style="display: none">
-                    <input 
-                        type="text" value="{{!todo.text}}" class='edit' 
-                        onkeydown="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
-                        onblur="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
-                    />
-                </div>
                 <div class="viewing">
                     <input 
                         type="checkbox" class="toggle" 
@@ -23,18 +16,25 @@
                     <label ondblclick="SoMuch.controllers.Changes.edit(this)">{{=todo.text}}</label>
                     <button class="destroy" onclick="SoMuch.controllers.Changes.destroy({{=todo.id}})" />
                 </div>
+                <div class="editing" style="display: none">
+                    <input 
+                        type="text" value="{{!todo.text}}" class='edit' 
+                        onkeydown="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
+                        onblur="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
+                    />
+                </div>
             </li>
             {{~}}
         </ul>
         <input 
             type="checkbox" id="toggle-all" 
             {{? it.counts.completed == it.counts.total }}checked{{?}}
-            onclick="SoMuch.controllers.Changes.toggle(null,'{{? it.counts.completed == it.counts.total }}active{{??}}completed{{?}}')"
+            onclick="SoMuch.controllers.Changes.toggle(null,'{{= it.counts.completed == it.counts.total ? 'active' : 'completed'}}')"
          /> 
     </section>
     <footer id="footer">
         <span id="todo-count">
-            <strong>{{=it.counts.active}}</strong> todo{{?it.counts.active.length > 1}}s{{?}} left
+            <strong>{{=it.counts.active}}</strong> todo{{?it.counts.active > 1}}s{{?}} left
         </span>
         <ul id="filters">
             <li>
