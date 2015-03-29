@@ -2,7 +2,7 @@ SoMuch = new DoTRoute.Application();
 SoMuch.ToDo = new todoAPI();
 SoMuch.ToDo.load();
 
-SoMuch.controller("ToDos",null,{
+SoMuch.controller("Changes",null,{
     create: function(event) {
         if(event.keyCode == 13 && $(event.target).val().length) {
             this.application.ToDo.create($(event.target).val());
@@ -48,7 +48,7 @@ SoMuch.controller("ToDos",null,{
     }
 });
 
-SoMuch.template("ToDos",$.ajax({url: "todos.html", async: false}).responseText);
+SoMuch.template("Listing",$.ajax({url: "listing.html", async: false}).responseText);
 
-SoMuch.route("all","/","ToDos","ToDos","all");
-SoMuch.route("some","/{status:^(active|completed)$}/","ToDos","ToDos","some");
+SoMuch.route("all","/","Listing","Changes","all");
+SoMuch.route("some","/{status:^(active|completed)$}/","Listing","Changes","some");

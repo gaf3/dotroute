@@ -1,7 +1,7 @@
 <section id="todoapp">
     <header id="header">
         <h1>todos</h1>
-        <input type="text" id="new-todo" placeholder="What needs to be done?" onkeydown="SoMuch.controllers.ToDos.create(event)" />
+        <input type="text" id="new-todo" placeholder="What needs to be done?" onkeydown="SoMuch.controllers.Changes.create(event)" />
     </header>
     <section id="main">
         <ul id="todo-list">
@@ -10,18 +10,18 @@
                 <div class="editing" style="display: none">
                     <input 
                         type="text" value="{{!todo.text}}" class='edit' 
-                        onkeydown="SoMuch.controllers.ToDos.update(event,{{=todo.id}})"
-                        onblur="SoMuch.controllers.ToDos.update(event,{{=todo.id}})"
+                        onkeydown="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
+                        onblur="SoMuch.controllers.Changes.update(event,{{=todo.id}})"
                     />
                 </div>
                 <div class="viewing">
                     <input 
                         type="checkbox" class="toggle" 
-                        onclick="SoMuch.controllers.ToDos.toggle({{=todo.id}},'{{= todo.status == 'active' ? 'completed' : 'active'}}')" 
+                        onclick="SoMuch.controllers.Changes.toggle({{=todo.id}},'{{= todo.status == 'active' ? 'completed' : 'active'}}')" 
                         {{? todo.status == "completed" }}checked{{?}}
                     />
-                    <label ondblclick="SoMuch.controllers.ToDos.edit(this)">{{=todo.text}}</label>
-                    <button class="destroy" onclick="SoMuch.controllers.ToDos.destroy({{=todo.id}})" />
+                    <label ondblclick="SoMuch.controllers.Changes.edit(this)">{{=todo.text}}</label>
+                    <button class="destroy" onclick="SoMuch.controllers.Changes.destroy({{=todo.id}})" />
                 </div>
             </li>
             {{~}}
@@ -29,7 +29,7 @@
         <input 
             type="checkbox" id="toggle-all" 
             {{? it.counts.completed == it.counts.total }}checked{{?}}
-            onclick="SoMuch.controllers.ToDos.toggle(null,'{{? it.counts.completed == it.counts.total }}active{{??}}completed{{?}}')"
+            onclick="SoMuch.controllers.Changes.toggle(null,'{{? it.counts.completed == it.counts.total }}active{{??}}completed{{?}}')"
          /> 
     </section>
     <footer id="footer">
@@ -56,7 +56,7 @@
                 >Completed</a>
             </li>
         </ul>
-        <button id="clear-completed" onclick="SoMuch.controllers.ToDos.purge()" >
+        <button id="clear-completed" onclick="SoMuch.controllers.Changes.purge()" >
             Clear completed ({{=it.counts.completed}})
         </button>
     </footer>
