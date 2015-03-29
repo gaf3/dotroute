@@ -44,8 +44,8 @@ todoAPI.prototype.list = function(status) {
 todoAPI.prototype.counts = function() {
     var count = {
         total: this.todos.length,
-        complete: 0,
-        incomplete: 0
+        completed: 0,
+        active: 0
     };
     for (var index = 0; index < this.todos.length; index++) {
         count[this.todos[index].status]++;
@@ -55,7 +55,7 @@ todoAPI.prototype.counts = function() {
 
 todoAPI.prototype.create = function(text) {
     var new_id = this.next();
-    this.todos.push({id: new_id,text: text, status: "incomplete"});
+    this.todos.push({id: new_id,text: text, status: "active"});
     this.save();
     return new_id;
 }
@@ -88,7 +88,7 @@ todoAPI.prototype.destroy = function(id) {
 
 todoAPI.prototype.purge = function() {
     for (var index = this.todos.length - 1; index > -1; index--) {
-        if ("complete" == this.todos[index].status) {
+        if ("completed" == this.todos[index].status) {
             this.todos.splice(index,1);
         }
     }

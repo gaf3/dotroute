@@ -65,13 +65,13 @@ QUnit.test("list", function(assert) {
 
     var todos_api = new todoAPI(test_storage);
     todos_api.todos = [
-        {id: 3, status: "complete"},
-        {id: 4, status: "incomplete"},
-        {id: 5, status: "complete"}
+        {id: 3, status: "completed"},
+        {id: 4, status: "active"},
+        {id: 5, status: "completed"}
     ];
     assert.deepEqual(todos_api.list(),todos_api.todos);
-    assert.deepEqual(todos_api.list("complete"),[{id: 3, status: "complete"},{id: 5, status: "complete"}]);
-    assert.deepEqual(todos_api.list("incomplete"),[{id: 4, status: "incomplete"}]);
+    assert.deepEqual(todos_api.list("completed"),[{id: 3, status: "completed"},{id: 5, status: "completed"}]);
+    assert.deepEqual(todos_api.list("active"),[{id: 4, status: "active"}]);
 
 });
 
@@ -79,11 +79,11 @@ QUnit.test("counts", function(assert) {
 
     var todos_api = new todoAPI(test_storage);
     todos_api.todos = [
-        {id: 3, status: "complete"},
-        {id: 4, status: "incomplete"},
-        {id: 5, status: "complete"}
+        {id: 3, status: "completed"},
+        {id: 4, status: "active"},
+        {id: 5, status: "completed"}
     ];
-    assert.deepEqual(todos_api.counts(),{total: 3, complete: 2, incomplete: 1});
+    assert.deepEqual(todos_api.counts(),{total: 3, completed: 2, active: 1});
 
 });
 
@@ -91,11 +91,11 @@ QUnit.test("create", function(assert) {
 
     var todos_api = new todoAPI(test_storage);
     assert.equal(todos_api.create("This one"),1);
-    assert.deepEqual(todos_api.todos,[{id: 1, text: "This one", status: "incomplete"}]);
-    assert.equal(localStorage.getItem(test_storage),'[{"id":1,"text":"This one","status":"incomplete"}]');
+    assert.deepEqual(todos_api.todos,[{id: 1, text: "This one", status: "active"}]);
+    assert.equal(localStorage.getItem(test_storage),'[{"id":1,"text":"This one","status":"active"}]');
 
     assert.equal(todos_api.create("That one"),2);
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "active"});
 
 });
 
@@ -105,21 +105,21 @@ QUnit.test("update", function(assert) {
     todos_api.create("This one");
     todos_api.create("That one");
 
-    todos_api.update(2,"Other one","complete");
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "complete"});
-    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 2, text: "Other one", status: "complete"});
+    todos_api.update(2,"Other one","completed");
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "active"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "completed"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 2, text: "Other one", status: "completed"});
 
-    todos_api.update(1,null,"complete");
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "complete"});
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "complete"});
+    todos_api.update(1,null,"completed");
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "completed"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "completed"});
 
-    todos_api.update(null,null,"incomplete");
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "incomplete"});
+    todos_api.update(null,null,"active");
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "active"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "Other one", status: "active"});
 
     try {
-        todos_api.update(3,"No One","incomplete");
+        todos_api.update(3,"No One","active");
         assert.ok(false);
     } catch (exception) {
         assert.ok(true);
@@ -133,17 +133,17 @@ QUnit.test("destroy", function(assert) {
     todos_api.create("This one");
     todos_api.create("That one");
     todos_api.create("Other one");
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "incomplete"});
-    assert.deepEqual(todos_api.todos[2],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "active"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "active"});
+    assert.deepEqual(todos_api.todos[2],{id: 3, text: "Other one", status: "active"});
 
     todos_api.destroy(2);
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "incomplete"});
-    assert.deepEqual(todos_api.todos[1],{id: 3, text: "Other one", status: "incomplete"});
-    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "active"});
+    assert.deepEqual(todos_api.todos[1],{id: 3, text: "Other one", status: "active"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[1],{id: 3, text: "Other one", status: "active"});
 
     todos_api.destroy(1);
-    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "active"});
 
     try {
         todos_api.destroy(4);
@@ -160,17 +160,17 @@ QUnit.test("purge", function(assert) {
     todos_api.create("This one");
     todos_api.create("That one");
     todos_api.create("Other one");
-    todos_api.update(1,null,"complete");
-    todos_api.update(2,null,"complete");
-    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "complete"});
-    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "complete"});
-    assert.deepEqual(todos_api.todos[2],{id: 3, text: "Other one", status: "incomplete"});
+    todos_api.update(1,null,"completed");
+    todos_api.update(2,null,"completed");
+    assert.deepEqual(todos_api.todos[0],{id: 1, text: "This one", status: "completed"});
+    assert.deepEqual(todos_api.todos[1],{id: 2, text: "That one", status: "completed"});
+    assert.deepEqual(todos_api.todos[2],{id: 3, text: "Other one", status: "active"});
 
     todos_api.purge();
-    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
-    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[0],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "active"});
+    assert.deepEqual(JSON.parse(localStorage.getItem(test_storage))[0],{id: 3, text: "Other one", status: "active"});
 
     todos_api.purge();
-    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "incomplete"});
+    assert.deepEqual(todos_api.todos[0],{id: 3, text: "Other one", status: "active"});
 
 });
