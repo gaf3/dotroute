@@ -38,22 +38,13 @@
         </span>
         <ul id="filters">
             <li>
-                <a 
-                    href="{{=SoMuch.link('all')}}" 
-                    {{? SoMuch.current.route.name == "all"}}class="selected"{{?}}
-                >All</a>
+                <a href="{{=SoMuch.link('all')}}" {{?SoMuch.at('all')}}class="selected"{{?}}>All</a>
             </li>
             <li>
-                <a 
-                    href="{{=SoMuch.link('some','active')}}" 
-                    {{? SoMuch.current.route.name == "some" && SoMuch.current.path.status == "active" }}class="selected"{{?}}
-                >Active</a>
+                <a href="{{=SoMuch.link('some','active')}}" {{?SoMuch.at('some','active')}}class="selected"{{?}}>Active</a>
             </li>
             <li>
-                <a 
-                    href="{{=SoMuch.link('some','completed')}}" 
-                    {{? SoMuch.current.route.name == "some" && SoMuch.current.path.status == "completed" }}class="selected"{{?}}
-                >Completed</a>
+                <a href="{{=SoMuch.link('some','completed')}}" {{?SoMuch.at('some','completed')}}class="selected"{{?}}>Completed</a>
             </li>
         </ul>
         <button id="clear-completed" onclick="SoMuch.controllers.Changes.purge()" >
