@@ -177,16 +177,15 @@ QUnit.test("controller", function(assert) {
 
     var application = new DoTRoute.Application(null,null,true);
 
-    var controller = application.controller("Controlly");
+    var basey = application.controller("Basey");
 
-    assert.deepEqual(controller,application.controllers.Controlly);
-    assert.deepEqual(controller.it,{});
-    assert.equal(controller.application,application);
-    assert.equal(controller.name,"Controlly");
+    assert.deepEqual(basey.it,{});
+    assert.equal(basey.application,application);
+    assert.equal(basey.name,"Basey");
 
-    controller.extra = "fun";
+    basey.extra = "fun";
 
-    var controlly = application.controller("Controlly",controller,{
+    var controlly = application.controller("Controlly",basey,{
         start: function (value) {
             this.it.begin = value;
         },
@@ -195,15 +194,18 @@ QUnit.test("controller", function(assert) {
         }
     });
 
-    controlly.start("up");    
-    controlly.finish("down");    
-
+    assert.deepEqual(controlly.it,{});
     assert.equal(controlly.application,application);
     assert.equal(controlly.name,"Controlly");
     assert.equal(controlly.extra,"fun");
-    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
 
-    var extendy = application.controller("Extendy","Controlly",{
+    controlly.start("up");
+    controlly.finish("down");
+
+    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
+    assert.deepEqual(basey.it,{});
+
+    var extendy = application.controller("Extendy",controlly,{
         start: function (value) {
             this.it.begin = "sideways";
         }
@@ -216,14 +218,9 @@ QUnit.test("controller", function(assert) {
     assert.equal(extendy.name,"Extendy");
     assert.equal(extendy.extra,"fun");
     assert.deepEqual(extendy.it,{begin: "sideways", end: "down"});
-
-    controlly.start("up");    
-    controlly.finish("down");    
-
-    assert.equal(controlly.application,application);
-    assert.equal(controlly.name,"Controlly");
-    assert.equal(controlly.extra,"fun");
     assert.deepEqual(controlly.it,{begin: "up", end: "down"});
+    assert.deepEqual(basey.it,{});
+
 
 });
 
