@@ -13,11 +13,49 @@ QUnit.module("DoTRoute.Controller");
 
 QUnit.test("constructor", function(assert) {
 
-    var controller = new DoTRoute.Controller("Appy","Controlly");
+    var basey = new DoTRoute.Controller("Appy","Basey");
 
-    assert.deepEqual(controller.it,{});
-    assert.equal(controller.application,"Appy");
-    assert.equal(controller.name,"Controlly");
+    assert.deepEqual(basey.it,{});
+    assert.equal(basey.application,"Appy");
+    assert.equal(basey.name,"Basey");
+
+    basey.extra = "fun";
+
+    var controlly = new DoTRoute.Controller("Happy","Controlly",basey,{
+        start: function (value) {
+            this.it.begin = value;
+        },
+        finish: function (value) {
+            this.it.end = value;
+        }
+    });
+
+    assert.deepEqual(controlly.it,{});
+    assert.equal(controlly.application,"Happy");
+    assert.equal(controlly.name,"Controlly");
+    assert.equal(controlly.extra,"fun");
+
+    controlly.start("up");
+    controlly.finish("down");
+
+    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
+    assert.deepEqual(basey.it,{});
+
+    var extendy = new DoTRoute.Controller("Nappy","Extendy",controlly,{
+        start: function (value) {
+            this.it.begin = "sideways";
+        }
+    });
+
+    extendy.start("up");    
+    extendy.finish("down");    
+
+    assert.equal(extendy.application,"Nappy");
+    assert.equal(extendy.name,"Extendy");
+    assert.equal(extendy.extra,"fun");
+    assert.deepEqual(extendy.it,{begin: "sideways", end: "down"});
+    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
+    assert.deepEqual(basey.it,{});
 
 });
 
@@ -148,7 +186,7 @@ QUnit.test("controller", function(assert) {
 
     controller.extra = "fun";
 
-    var controller = application.controller("Controlly",controller,{
+    var controlly = application.controller("Controlly",controller,{
         start: function (value) {
             this.it.begin = value;
         },
@@ -157,27 +195,35 @@ QUnit.test("controller", function(assert) {
         }
     });
 
-    controller.start("up");    
-    controller.finish("down");    
+    controlly.start("up");    
+    controlly.finish("down");    
 
-    assert.equal(controller.application,application);
-    assert.equal(controller.name,"Controlly");
-    assert.equal(controller.extra,"fun");
-    assert.deepEqual(controller.it,{begin: "up", end: "down"});
+    assert.equal(controlly.application,application);
+    assert.equal(controlly.name,"Controlly");
+    assert.equal(controlly.extra,"fun");
+    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
 
-    var controller = application.controller("Extendy","Controlly",{
+    var extendy = application.controller("Extendy","Controlly",{
         start: function (value) {
             this.it.begin = "sideways";
         }
     });
 
-    controller.start("up");    
-    controller.finish("down");    
+    extendy.start("up");    
+    extendy.finish("down");    
 
-    assert.equal(controller.application,application);
-    assert.equal(controller.name,"Extendy");
-    assert.equal(controller.extra,"fun");
-    assert.deepEqual(controller.it,{begin: "sideways", end: "down"});
+    assert.equal(extendy.application,application);
+    assert.equal(extendy.name,"Extendy");
+    assert.equal(extendy.extra,"fun");
+    assert.deepEqual(extendy.it,{begin: "sideways", end: "down"});
+
+    controlly.start("up");    
+    controlly.finish("down");    
+
+    assert.equal(controlly.application,application);
+    assert.equal(controlly.name,"Controlly");
+    assert.equal(controlly.extra,"fun");
+    assert.deepEqual(controlly.it,{begin: "up", end: "down"});
 
 });
 

@@ -14,7 +14,19 @@ DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
 // Controller
 
-DoTRoute.Controller = function(application,name) {
+DoTRoute.Controller = function(application,name,base,actions) {
+
+    // Overlay if there's a base
+
+    if (base) {
+        controller = $.extend(this,base);
+    }
+
+    // Add actions
+
+    $.extend(this,actions);
+
+    // Set what's sent
 
     this.it = {};
     this.application = application;
@@ -187,19 +199,9 @@ DoTRoute.Application.prototype.controller = function(name,base,actions) {
 
     base = typeof(base) == "string" && base in this.controllers ? this.controllers[base] : base;
 
-    // Create a blank
+    // Create using what's sent
 
-    var controller = new DoTRoute.Controller(this,name);
-
-    // Then overlay if there's a base
-
-    if (base) {
-        controller = $.extend(base,controller);
-    }
-
-    // Map by name
-
-    this.controllers[name] = $.extend(controller,actions);
+    this.controllers[name] = new DoTRoute.Controller(this,name,base,actions);
 
     return this.controllers[name];
 
