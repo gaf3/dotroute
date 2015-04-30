@@ -379,7 +379,7 @@ QUnit.test("link", function(assert) {
     var things = application.route("things","/things/{:\\+d}/{:\\+d}/");
 
     assert.equal(application.link(people),"#/people/stuff/");
-    assert.equal(application.link("things",2,3),"#/things/2/3/");
+    assert.equal(application.link("things",2,3,{a: 1}),"#/things/2/3/?a=1");
 
     try {
         application.link("stuff");
@@ -479,7 +479,7 @@ QUnit.test("render", function(assert) {
     this.renderWindow = window.open("", "_blank", "width=200, height=100");
     this.renderWindow.document.write("<div></div>");
 
-    application.render({stuff: "people"},template,"div",this.renderWindow);
+    application.render({stuff: "people"},"simple","div",this.renderWindow);
 
     assert.equal($("span",this.applicationWindow.document).text(),"things");
     assert.equal($("div",this.renderWindow.document).text(),"people");

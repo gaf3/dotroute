@@ -398,9 +398,17 @@ DoTRoute.Application.prototype.link = function(route) {
         paths.push("exact" in route.patterns[index] ? route.patterns[index].exact : arguments[argument++]);
     }
 
-    // Return the hash
+    var link = "#/" + paths.join("/")
 
-    return "#/" + paths.join("/");
+    // If there's still an argument, then it's parameters
+
+    if (argument < arguments.length) {
+        link += "?" + $.param(arguments[argument]);
+    }
+    
+    // Return it all pretty
+
+    return link;
 
 }
 
@@ -473,6 +481,8 @@ DoTRoute.Application.prototype.render = function(it,template,target,pane) {
 
     if (!template) {
         template = this.current.route.template;
+    } else {
+        template = typeof(template) == "string" && template in this.templates ? this.templates[template] : template;
     }
 
     // No target?  No problem!  Assume app's
