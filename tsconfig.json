@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "module": "commonjs",
+    "target": "ES2019",
+    "lib": ["ES2019", "DOM"],
+    "esModuleInterop": true
+  },
+  "include": ["src/doTRoute.d.ts", "src/test/types.ts"]
+}
