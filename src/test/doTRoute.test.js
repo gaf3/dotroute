@@ -6,6 +6,10 @@ const DoTRoute = require('../doTRoute.js')
 // application.go changes the hash, and the application routes when the hashchange event arrives.
 // The event is asynchronous, so wait for it. Start the application first, or nothing is listening.
 
+// What's in an element of a pane.
+
+const text = (pane, selector) => pane.document.querySelector(selector).textContent
+
 const going = async (application, pane, ...where) => {
     const changed = new Promise((resolve) => pane.addEventListener('hashchange', resolve, { once: true }))
     application.go(...where)
@@ -144,15 +148,35 @@ describe("DoTRoute.Application", () => {
 
     });
 
-    it("start", () => {
+    it("start", async () => {
 
         applicationWindow = openPane("<span></span>");
+        await loaded(applicationWindow);
 
-        var application = new DoTRoute.Application("span",applicationWindow);
-    
+        var application = new DoTRoute.Application("span",applicationWindow,true);
+        var entered = 0;
+        var exited = 0;
+
+        application.template("Home","<p>home</p>");
+        application.route("home","/","Home",null,function () {
+            entered++;
+            this.application.render();
+        },function () {
+            exited++;
+        });
+
         application.start();
 
-        assert.ok(true);
+        // The page loading routes (hashchange is covered by go).
+
+        applicationWindow.dispatchEvent(new applicationWindow.Event("load"));
+        assert.equal(entered,1);
+        assert.equal(text(applicationWindow,"span"),"home");
+
+        // The page unloading leaves the current route.
+
+        applicationWindow.dispatchEvent(new applicationWindow.Event("unload"));
+        assert.equal(exited,1);
 
     });
 
@@ -250,9 +274,16 @@ describe("DoTRoute.Application", () => {
         assert.equal(namey.extra,"fun");
         assert.deepEqual(namey.it,{});
 
+
+        // An action that's undefined doesn't wipe out what's inherited.
+
+        var undefinedy = application.controller("Undefinedy",basey,{extra: undefined});
+
+        assert.equal(undefinedy.extra,"fun");
+
     });
 
-    it("route", () => {
+    it("route", async () => {
 
         applicationWindow = openPane("<span></span>");
 
@@ -277,7 +308,7 @@ describe("DoTRoute.Application", () => {
         assert.equal(route.controller,undefined);
         application.current.route = route;
         route.enter();
-        assert.equal($("span",applicationWindow.document).text(),"things");
+        assert.equal(text(applicationWindow,"span"),"things");
         route.exit();
 
         var route = application.route("named","/this/{that}/",template,"Controlly","start","finish");
@@ -311,6 +342,19 @@ describe("DoTRoute.Application", () => {
         assert.equal(controller.it.begin,"up");
         route.exit();
         assert.equal(controller.it.end,"down");
+
+
+        // An action can be an async function.
+
+        var asyncy = application.controller("Asyncy",null,{
+            entering: async function () {
+                await Promise.resolve();
+                this.it.began = "async";
+            }
+        });
+        var route = application.route("asyncy","/async/",template,"Asyncy","entering");
+        await route.enter();
+        assert.equal(asyncy.it.began,"async");
 
     });
 
@@ -423,6 +467,32 @@ describe("DoTRoute.Application", () => {
             assert.equal(exception.message,"Can't find route: stuff");
         }
 
+
+        // Query strings are built the way jQuery's param built them.
+
+        var queries = [
+            [{a: 1},"a=1"],
+            [{a: 1, b: "x y"},"a=1&b=x+y"],
+            [{c: [1,2]},"c%5B%5D=1&c%5B%5D=2"],
+            [{d: {e: "f"}},"d%5Be%5D=f"],
+            [{s: "a&b=c/d?e#f"},"s=a%26b%3Dc%2Fd%3Fe%23f"],
+            [{q: "it's (ok)!*~"},"q=it's+(ok)!*~"],
+            [{n: null, u: undefined, z: 0, f: false, t: true, e: ""},"n=&u=&z=0&f=false&t=true&e="],
+            [{a: [{b: 1},{b: 2}]},"a%5B0%5D%5Bb%5D=1&a%5B1%5D%5Bb%5D=2"],
+            [{"k e y": "v"},"k+e+y=v"],
+            [{u: "caf\u00e9 \u2603"},"u=caf%C3%A9+%E2%98%83"],
+            [{f: function () { return "called"; }},"f=called"],
+            [{a: [[1,2],[3]]},"a%5B0%5D%5B%5D=1&a%5B0%5D%5B%5D=2&a%5B1%5D%5B%5D=3"],
+            [{"a[]": [1,2]},"a%5B%5D=1&a%5B%5D=2"],
+            [{a: [null,1]},"a%5B0%5D=&a%5B%5D=1"]
+        ];
+
+        for (var [params,query] of queries) {
+            assert.equal(application.link("things",2,3,params),"#/things/2/3/?" + query);
+        }
+
+        assert.equal(application.link("things",2,3,{}),"#/things/2/3/?");
+
     });
 
     it("go", async () => {
@@ -438,10 +508,10 @@ describe("DoTRoute.Application", () => {
         application.route("stuff","/stuff/{:\\d+}/{:\\d+}","Stuff");
 
         await going(application, applicationWindow, "#/people/");
-        assert.equal($("span",applicationWindow.document).text(),"stuff");
+        assert.equal(text(applicationWindow,"span"),"stuff");
 
         await going(application, applicationWindow, "stuff",1,2);
-        assert.equal($("span",applicationWindow.document).text(),"things");
+        assert.equal(text(applicationWindow,"span"),"things");
         assert.equal(applicationWindow.location.hash,"#/stuff/1/2");
 
     });
@@ -466,7 +536,7 @@ describe("DoTRoute.Application", () => {
         await going(application, applicationWindow, "people");
 
         assert.equal(entered,1);
-        assert.equal($("span",applicationWindow.document).text(),"stuff");
+        assert.equal(text(applicationWindow,"span"),"stuff");
 
     });
 
@@ -511,13 +581,13 @@ describe("DoTRoute.Application", () => {
         application.route("stuff","/stuff/{:\\d+}/{:\\d+}","Stuff");
 
         await going(application, applicationWindow, "stuff",1,2);
-        assert.equal($("span",applicationWindow.document).text(),"things");
+        assert.equal(text(applicationWindow,"span"),"things");
 
-        $("span",applicationWindow.document).html(application.templates.People());
-        assert.equal($("span",applicationWindow.document).text(),"stuff");
+        applicationWindow.document.querySelector("span").innerHTML = application.templates.People();
+        assert.equal(text(applicationWindow,"span"),"stuff");
 
         application.refresh();
-        assert.equal($("span",applicationWindow.document).text(),"things");
+        assert.equal(text(applicationWindow,"span"),"things");
 
     });
 
@@ -531,21 +601,30 @@ describe("DoTRoute.Application", () => {
 
         application.render({stuff: "things"});
 
-        assert.equal($("span",applicationWindow.document).text(),"things");
+        assert.equal(text(applicationWindow,"span"),"things");
 
         renderWindow = openPane("<div></div>");
 
         application.render({stuff: "people"},"simple","div",renderWindow);
 
-        assert.equal($("span",applicationWindow.document).text(),"things");
-        assert.equal($("div",renderWindow.document).text(),"people");
+        assert.equal(text(applicationWindow,"span"),"things");
+        assert.equal(text(renderWindow,"div"),"people");
 
 
         // A template can be sent as the function itself, not just by name.
 
         application.render({stuff: "directly"},template,"span",applicationWindow);
 
-        assert.equal($("span",applicationWindow.document).text(),"directly");
+        assert.equal(text(applicationWindow,"span"),"directly");
+
+
+        // Every element the target matches is rendered into.
+
+        renderWindow.document.body.innerHTML = "<div></div><div></div>";
+
+        application.render({stuff: "all"},"simple","div",renderWindow);
+
+        assert.deepEqual([...renderWindow.document.querySelectorAll("div")].map((div) => div.textContent),["all","all"]);
 
     });
 })

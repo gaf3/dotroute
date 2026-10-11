@@ -16,15 +16,27 @@ DoTRoute.Exception.prototype.constructor = DoTRoute.Exception;
 
 DoTRoute.Controller = function(application,name,base,actions) {
 
+    var controller = this;
+
+    // Copy over what's defined, so an undefined value doesn't wipe out what came before
+
+    function extend(source) {
+        for (var key in source) {
+            if (source[key] !== undefined) {
+                controller[key] = source[key];
+            }
+        }
+    }
+
     // Overlay if there's a base
 
     if (base) {
-        controller = $.extend(this,base);
+        extend(base);
     }
 
     // Add actions
 
-    $.extend(this,actions);
+    extend(actions);
 
     // Set what's sent
 
@@ -152,11 +164,11 @@ DoTRoute.Application.prototype.constructor = DoTRoute.Application;
 
 DoTRoute.Application.prototype.start = function() {
 
-    // Proxy like no one is watching
+    // Bind to this application so the handlers run as if called on it
 
-    $(this.pane).on('hashchange',$.proxy(this.router,this));  
-    $(this.pane).on('load',$.proxy(this.router,this));  
-    $(this.pane).on('unload',$.proxy(this.last,this));  
+    this.pane.addEventListener('hashchange',this.router.bind(this));
+    this.pane.addEventListener('load',this.router.bind(this));
+    this.pane.addEventListener('unload',this.last.bind(this));
 
 }
 
@@ -220,7 +232,7 @@ DoTRoute.Application.prototype.route = function(name,path,template,controller,en
     // else use what they sent, else just do a simple render
 
     if (typeof(enter) == "string" && enter in controller) {
-        enter = $.proxy(controller[enter],controller);
+        enter = controller[enter].bind(controller);
     } else {
         enter = enter ? enter : function () {this.application.render()};
     }
@@ -229,7 +241,7 @@ DoTRoute.Application.prototype.route = function(name,path,template,controller,en
     // else use what they sent, else just do a simple nothing
 
     if (typeof(exit) == "string" && exit in controller) {
-        exit = $.proxy(controller[exit],controller);
+        exit = controller[exit].bind(controller);
     } else {
         exit = exit ? exit : function () {};
     }
@@ -260,7 +272,7 @@ DoTRoute.Application.prototype.match = function(path) {
     // query object
 
     if (path_query.length) {
-        $.each(path_query[0].split('&'),function(index,parameter) {
+        path_query[0].split('&').forEach(function(parameter) {
             var name_value = parameter.split('=');
             query[name_value[0]] = name_value.length > 1 ? decodeURIComponent(name_value[1]) : null;
         });
@@ -392,6 +404,44 @@ DoTRoute.Application.prototype.link = function(route) {
     // match pattern, use that exactly.  Else use the next argument
     // sent.
 
+    // Builds a query string the way jQuery's param did: spaces as +, an object's values as a[b]=1,
+    // an array's as a[]=1 (a[0][b]=1 for ones holding objects), null as empty, functions called.
+
+    function param(object) {
+
+        var parts = [];
+
+        function add(key,value) {
+            value = typeof(value) == "function" ? value() : (value == null ? "" : value);
+            parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+        }
+
+        function build(prefix,value) {
+            if (Array.isArray(value)) {
+                value.forEach(function(item,index) {
+                    if (/\[\]$/.test(prefix)) {
+                        add(prefix,item);
+                    } else {
+                        build(prefix + "[" + (typeof(item) == "object" ? index : "") + "]",item);
+                    }
+                });
+            } else if (Object.prototype.toString.call(value) == "[object Object]") {
+                for (var name in value) {
+                    build(prefix + "[" + name + "]",value[name]);
+                }
+            } else {
+                add(prefix,value);
+            }
+        }
+
+        for (var key in object) {
+            build(key,object[key]);
+        }
+
+        return parts.join("&").replace(/%20/g,"+");
+
+    }
+
     var paths = [];
     var argument = 1;
     for (var index = 0; index < route.patterns.length; index++) {
@@ -403,7 +453,7 @@ DoTRoute.Application.prototype.link = function(route) {
     // If there's still an argument, then it's parameters
 
     if (argument < arguments.length) {
-        link += "?" + $.param(arguments[argument]);
+        link += "?" + param(arguments[argument]);
     }
     
     // Return it all pretty
@@ -499,11 +549,15 @@ DoTRoute.Application.prototype.render = function(it,template,target,pane) {
         pane = this.pane;
     }
 
-    // In our app's window, set the jQuery target's 
-    // html to whatever the template function returns
-    // using the data that was sent to us
+    // In our app's window, set the html of every element the target
+    // matches to whatever the template function returns using the
+    // data that was sent to us
 
-    $(target,pane.document).html(template(it));
+    var html = template(it);
+
+    pane.document.querySelectorAll(target).forEach(function(element) {
+        element.innerHTML = html;
+    });
 
 }
 
