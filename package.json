@@ -1,14 +1,45 @@
 {
   "name": "dotroute",
-  "version": "0.0.0",
-  "private": true,
-  "description": "A simple, flexible javascript framework using doT.js and a custom router.",
+  "version": "0.1.0",
+  "description": "A simple, flexible JavaScript framework: a hash router and doT.js templates, for when an API does the work and you need something to make the pretty.",
   "license": "MIT",
+  "author": "Gaffer Fitch",
+  "keywords": [
+    "router",
+    "hash",
+    "doT",
+    "template",
+    "spa",
+    "framework"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gaf3/dotroute.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gaf3/dotroute/issues"
+  },
+  "homepage": "https://github.com/gaf3/dotroute#readme",
+  "main": "src/doTRoute.js",
+  "types": "src/doTRoute.d.ts",
+  "files": [
+    "src/doTRoute.js",
+    "src/doTRoute.d.ts",
+    "CHANGELOG.md"
+  ],
   "scripts": {
-    "test": "node --test --experimental-test-coverage --test-coverage-exclude='src/test/**' --test-reporter=spec src/test/*.test.js"
+    "test": "node --test --experimental-test-coverage --test-coverage-exclude='src/test/**' --test-reporter=spec src/test/*.test.js",
+    "lint": "eslint . && tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "dot": "^1.1.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "dot": "^1.1.3",
-    "jsdom": "^24.0.0"
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
+    "jsdom": "^24.0.0",
+    "typescript": "^5.9.3"
   }
 }

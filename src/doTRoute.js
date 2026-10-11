@@ -285,7 +285,7 @@ DoTRoute.Application.prototype.match = function(path) {
         // Get the route 
 
         var route = this.routes[this.routing[route_index]];
-        var path = {};
+        var parameters = {};
 
         // Lengths aren't the same, can't be a match
 
@@ -312,7 +312,7 @@ DoTRoute.Application.prototype.match = function(path) {
             // a parameter to grab, use it. 
 
             if ("parameter" in pattern) {
-                path[pattern.parameter] = paths[pattern_index];
+                parameters[pattern.parameter] = paths[pattern_index];
             }
 
         }
@@ -323,7 +323,7 @@ DoTRoute.Application.prototype.match = function(path) {
         this.current.paths = paths;
         this.current.controller = route.controller;
         this.current.route = route;
-        this.current.path = path;
+        this.current.path = parameters;
         this.current.query = query;
 
         return true;
@@ -400,10 +400,6 @@ DoTRoute.Application.prototype.link = function(route) {
         route = this.routes[route];
     }
 
-    // Go through all the paths in the route.  If it's an exact
-    // match pattern, use that exactly.  Else use the next argument
-    // sent.
-
     // Builds a query string the way jQuery's param did: spaces as +, an object's values as a[b]=1,
     // an array's as a[]=1 (a[0][b]=1 for ones holding objects), null as empty, functions called.
 
@@ -441,6 +437,10 @@ DoTRoute.Application.prototype.link = function(route) {
         return parts.join("&").replace(/%20/g,"+");
 
     }
+
+    // Go through all the paths in the route.  If it's an exact
+    // match pattern, use that exactly.  Else use the next argument
+    // sent.
 
     var paths = [];
     var argument = 1;

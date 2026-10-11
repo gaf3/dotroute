@@ -61,7 +61,7 @@ describe("DoTRoute.Controller", () => {
         assert.deepEqual(basey.it,{});
 
         var extendy = new DoTRoute.Controller("Nappy","Extendy",controlly,{
-            start: function (value) {
+            start: function () {
                 this.it.begin = "sideways";
             }
         });
@@ -205,7 +205,7 @@ describe("DoTRoute.Application", () => {
         assert.equal(application.templates.Complex({stuff: 'things'}),"<p>people stuff things</p>");
 
         try {
-        var template = application.template("Broken","<p>{{!=it.stuff}}</p>");
+        template = application.template("Broken","<p>{{!=it.stuff}}</p>");
             assert.ok(false);
         } catch (exception) {
             assert.equal(exception.name,"DoTRoute.Exception");
@@ -250,7 +250,7 @@ describe("DoTRoute.Application", () => {
         assert.deepEqual(basey.it,{});
 
         var extendy = application.controller("Extendy",controlly,{
-            start: function (value) {
+            start: function () {
                 this.it.begin = "sideways";
             }
         });
@@ -311,7 +311,7 @@ describe("DoTRoute.Application", () => {
         assert.equal(text(applicationWindow,"span"),"things");
         route.exit();
 
-        var route = application.route("named","/this/{that}/",template,"Controlly","start","finish");
+        route = application.route("named","/this/{that}/",template,"Controlly","start","finish");
         assert.deepEqual(application.routes.named,route);
         assert.equal(application.routing[1],"named");
         assert.equal(route.name,"named");
@@ -330,7 +330,7 @@ describe("DoTRoute.Application", () => {
         function exiting() {
             controller.it.result = "outty";
         }
-        var route = application.route("complex","/this/{that:\\w+:i}/",template,null,entering,exiting);
+        route = application.route("complex","/this/{that:\\w+:i}/",template,null,entering,exiting);
         assert.deepEqual(application.routes.complex,route);
         assert.equal(application.routing[2],"complex");
         assert.equal(route.name,"complex");
@@ -352,7 +352,7 @@ describe("DoTRoute.Application", () => {
                 this.it.began = "async";
             }
         });
-        var route = application.route("asyncy","/async/",template,"Asyncy","entering");
+        route = application.route("asyncy","/async/",template,"Asyncy","entering");
         await route.enter();
         assert.equal(asyncy.it.began,"async");
 
@@ -374,7 +374,7 @@ describe("DoTRoute.Application", () => {
         assert.deepEqual(application.current.query,{a:'1',b:'2'});
         assert.deepEqual(application.current.path,{});
 
-        var application = new DoTRoute.Application(null,null,true);
+        application = new DoTRoute.Application(null,null,true);
         application.route("named","/this/{that}/");
         assert.equal(application.match("/this/thang/?a=1&b=3"),true);
         assert.deepEqual(application.current.paths,["this","thang",""]);
@@ -382,7 +382,7 @@ describe("DoTRoute.Application", () => {
         assert.deepEqual(application.current.query,{a:'1',b:'3'});
         assert.deepEqual(application.current.path,{that: "thang"});
 
-        var application = new DoTRoute.Application(null,null,true);
+        application = new DoTRoute.Application(null,null,true);
         application.route("words","/this/{:\\w+:i}/");
         assert.equal(application.match("/this/thang/?a=2&b=2"),true);
         assert.deepEqual(application.current.paths,["this","thang",""]);
@@ -390,7 +390,7 @@ describe("DoTRoute.Application", () => {
         assert.deepEqual(application.current.query,{a:'2',b:'2'});
         assert.deepEqual(application.current.path,{});
 
-        var application = new DoTRoute.Application(null,null,true);
+        application = new DoTRoute.Application(null,null,true);
         application.route("complex","/this/{that:\\w+:i}/");
         assert.equal(application.match("/this/thang/?a=1&b=1"),true);
         assert.deepEqual(application.current.paths,["this","thang",""]);
@@ -401,7 +401,7 @@ describe("DoTRoute.Application", () => {
 
         // A query parameter with no value is null.
 
-        var application = new DoTRoute.Application(null,null,true);
+        application = new DoTRoute.Application(null,null,true);
         application.route("flagged","/this/that/");
         assert.equal(application.match("/this/that/?flag&a=1"),true);
         assert.deepEqual(application.current.query,{flag: null, a: '1'});
@@ -454,7 +454,7 @@ describe("DoTRoute.Application", () => {
         var application = new DoTRoute.Application(null,null,true);
 
         var people = application.route("people","/people/stuff/");
-        var things = application.route("things","/things/{:\\+d}/{:\\+d}/");
+        application.route("things","/things/{:\\+d}/{:\\+d}/");
 
         assert.equal(application.link(people),"#/people/stuff/");
         assert.equal(application.link("things",2,3,{a: 1}),"#/things/2/3/?a=1");
