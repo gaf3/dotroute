@@ -420,7 +420,9 @@ DoTRoute.Application.prototype.go = function(route) {
     // and use that
 
     this.pane.location.hash = typeof(route) == "string" && route[0] == '#' ? route : this.link.apply(this,arguments);
-    this.router();
+
+    // Changing the hash fires the hashchange event, and that's what calls the router. Calling it
+    // here as well would enter the route twice.
 
 }
 
@@ -505,3 +507,8 @@ DoTRoute.Application.prototype.render = function(it,template,target,pane) {
 
 }
 
+// Loaded as a plain script this defines the global DoTRoute. Loaded as a module it exports it.
+
+if (typeof module !== "undefined" && module.exports) {
+    module.exports = DoTRoute;
+}
