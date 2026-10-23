@@ -5,6 +5,13 @@ All notable changes to this project are recorded here, newest first. Format foll
 
 ## [Unreleased]
 
+### Added
+- Releases are scripted, as in the other relations-dil repos. `make new` starts a release (next version, branch, `VERSION`, changelog section), `make release-check` says where it is up to and what would stop it, and `make release` does the rest: checks, publish to npm, wait for the registry, a clean install from it (`make verify`, tried again while the registry catches up), then the tag. The `Jenkinsfile` runs `make release` on `main`, which does nothing for a version that is already released.
+- `make help` lists the targets.
+
+### Changed
+- `make version` is now the release script's (`V=+0.0.1|+0.1|+1|x.y.z`) and the old `npm version` step is `make sync`.
+
 ## [0.1.0] - 2026-10-10
 
 First release on npm, as `dotroute`. The code is the 2015 doTRoute.js with the changes below; its public
